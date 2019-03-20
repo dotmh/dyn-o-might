@@ -52,12 +52,25 @@ module.exports = class DynoMight {
 			if (field in payload) {
 				const item = payload[field];
 				if (this._isType(data, 'object')) {
+					if ('type' in data) {
+						validation.push(
+							this._test(
+								this._isType(item, data.type),
+								`${field} should be ${data.type} but ${typeof (item)} found`
+							)
+						);
+					}
 
+					if ('required' in data && data.required === true) {
+						validation.push(this._test(this._isRequired(item), `${field} is required`));
+					}
 				} else if (data === true) {
 					validation.push(this._test(this._isRequired(item), `${field} is required`));
 				}
 			}
 		});
+
+		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
 	}
 
 	_test(result, message) {

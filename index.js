@@ -49,6 +49,63 @@ module.exports = class DynoMight {
 
     isValid(payload) {
 
+        const validation = [];
+
+        this._definitionAsArray().forEach((entities) => {
+            const [field, data] = entities;
+
+            if ( field in payload ) {
+                const item = payload[field];
+                if(this._isType(data, 'object')) {
+                    
+                } else {
+                    if (data === true) {
+                        validation.push(this._test(this._isRequired(item), `${field} is required`));
+                    }
+                }
+            }
+        })
+    }
+
+    _test(result, message) {
+        return !result ? message : true;
+    }
+
+    _hasKey(payload) {
+        return Object.key(payload).lastIndexOf(this._keyField()) !== -1;
+    }
+
+    _isType(data, type) {
+        return type(data) === type;
+    }
+
+    _isRequired(data) {
+        let valid = true;
+        switch(typeof(data)) {
+            case "number" :
+                valid = data !== 0
+                break;
+            case "object" :
+                if(Array.isArray) {
+                    vaild = data.length > 0;
+                } else {
+                    valid = Object.keys(data).length > 0
+                }
+                break;
+            case "symbol":
+            case "string" :
+                valid = data.length;
+                break;
+            case "boolean" :
+                valid = data === true || data === false;
+                break;
+            case "function" :
+            case "undefined" :
+            default:
+                valid = false;
+                break;
+        }
+        return valid;
     }
 
     _keyField() {

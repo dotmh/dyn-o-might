@@ -18,5 +18,6 @@
   "homepage": "https://github.com/dotmh/dynomight#readme",
   "peerDependencies": {
     "aws-sdk": "^2.419.0"
-  }
+  },
+  "dependencies": {}
 }

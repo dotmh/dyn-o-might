@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/dotmh/dynomight/issues"
   },
-  "homepage": "https://github.com/dotmh/dynomight#readme"
+  "homepage": "https://github.com/dotmh/dynomight#readme",
+  "peerDependencies": {
+    "aws-sdk": "^2.419.0"
+  }
 }

@@ -19,14 +19,16 @@ module.exports = class DynoMight {
 
 			this.db.get(params, (err, result) => {
 
-				console.log('ITEM', result);
+				console.log('ITEM', err, result);
 
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
-					resolve(this._mapFields(result.Item));
+					const mapped = this._mapFields(result.Item);
+					console.log("MAPPED", mapped);
+				 	resolve(mapped);
 				} else {
-					resolve({});
+					resolve(null);
 				}
 			});
 		});
@@ -37,11 +39,14 @@ module.exports = class DynoMight {
 			const Item = {...{
 				[this._keyField()]: key
             }, ...payload};
-            
-            const validation = isValid(item);
+			
+			console.log('PUT:' ,Item, payload)
 
-            if (!validation.valid) {
-                throw new Error(validation.validation.join(' '));
+			const validation = this.isValid(Item);
+			
+            if (!validation.isValid) {
+				reject(new Error(validation.errors.join(', ')));
+				return null;
             }
 
 			this.db.put({
@@ -62,33 +67,36 @@ module.exports = class DynoMight {
 
 		this._definitionAsArray().forEach(entities => {
 			const [field, data] = entities;
+			const item = field in payload ? payload[field] : undefined;
+			if (this._isType(data, 'object')) {
+				if ('type' in data) {
+					validation.push(
+						this._test(
+							this._isType(item, data.type),
+							`${field} should be ${data.type} but ${typeof (item)} found`
+						)
+					);
+				}
 
-			if (field in payload) {
-				const item = payload[field];
-				if (this._isType(data, 'object')) {
-					if ('type' in data) {
-						validation.push(
-							this._test(
-								this._isType(item, data.type),
-								`${field} should be ${data.type} but ${typeof (item)} found`
-							)
-						);
-					}
-
-					if ('required' in data && data.required === true) {
-						validation.push(this._test(this._isRequired(item), `${field} is required`));
-					}
-				} else if (data === true) {
+				if ('required' in data && data.required === true) {
 					validation.push(this._test(this._isRequired(item), `${field} is required`));
 				}
+			} else if (data === true) {
+				validation.push(this._test(this._isRequired(item), `${field} is required`));
 			}
 		});
 
 		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
-    
+	
+		console.log('VALIDATION ERRRS', validation);
+
+		const errors = validation.filter((result) => result !== true);
+
+		console.log('ERRORs', errors, errors.length === 0);
+
         return {
-            isValid: validation.length === 0,
-            errors: validation
+            isValid: errors.length === 0,
+            errors
         };
     }
 
@@ -101,7 +109,7 @@ module.exports = class DynoMight {
 	}
 
 	_isType(data, type) {
-		return type(data) === type;
+		return typeof(data) === type;
 	}
 
 	_isRequired(data) {
@@ -120,7 +128,7 @@ module.exports = class DynoMight {
 				break;
 			case 'symbol':
 			case 'string':
-				valid = data.length;
+				valid = data.length > 0;
 				break;
 			case 'boolean':
 				valid = data === true || data === false;

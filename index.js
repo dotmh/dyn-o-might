@@ -7,7 +7,6 @@ module.exports = class DynoMight {
 
 	get(key) {
 		return new Promise((resolve, reject) => {
-
 			const params = {
 				TableName: this.tableName,
 				Key: {
@@ -18,15 +17,14 @@ module.exports = class DynoMight {
 			console.log('PARAMS', params);
 
 			this.db.get(params, (err, result) => {
-
 				console.log('ITEM', err, result);
 
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
 					const mapped = this._mapFields(result.Item);
-					console.log("MAPPED", mapped);
-				 	resolve(mapped);
+					console.log('MAPPED', mapped);
+					resolve(mapped);
 				} else {
 					resolve(null);
 				}
@@ -38,16 +36,16 @@ module.exports = class DynoMight {
 		return new Promise((resolve, reject) => {
 			const Item = {...{
 				[this._keyField()]: key
-            }, ...payload};
-			
-			console.log('PUT:' ,Item, payload)
+			}, ...payload};
+
+			console.log('PUT:', Item, payload);
 
 			const validation = this.isValid(Item);
-			
-            if (!validation.isValid) {
+
+			if (!validation.isValid) {
 				reject(new Error(validation.errors.join(', ')));
 				return null;
-            }
+			}
 
 			this.db.put({
 				TableName: this.tableName,
@@ -87,18 +85,18 @@ module.exports = class DynoMight {
 		});
 
 		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
-	
+
 		console.log('VALIDATION ERRRS', validation);
 
-		const errors = validation.filter((result) => result !== true);
+		const errors = validation.filter(result => result !== true);
 
 		console.log('ERRORs', errors, errors.length === 0);
 
-        return {
-            isValid: errors.length === 0,
-            errors
-        };
-    }
+		return {
+			isValid: errors.length === 0,
+			errors
+		};
+	}
 
 	_test(result, message) {
 		return result === false ? message : result;
@@ -109,7 +107,7 @@ module.exports = class DynoMight {
 	}
 
 	_isType(data, type) {
-		return typeof(data) === type;
+		return typeof (data) === type;
 	}
 
 	_isRequired(data) {
@@ -152,7 +150,7 @@ module.exports = class DynoMight {
 	_mapFields(item) {
 		const responseData = {};
 		this._definitionAsArray().forEach(entities => {
-			const [field, data] = entities;
+			const field = entities[0];
 			if (field in item) {
 				responseData[field] = item[field];
 			}

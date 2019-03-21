@@ -7,16 +7,24 @@ module.exports = class DynoMight {
 
 	get(key) {
 		return new Promise((resolve, reject) => {
-			this.db.get({
+
+			const params = {
 				TableName: this.tableName,
 				Key: {
 					[this._keyField()]: key
 				}
-			}, (err, result) => {
+			};
+
+			console.log('PARAMS', params);
+
+			this.db.get(params, (err, result) => {
+
+				console.log('ITEM', result);
+
 				if (err) {
 					reject(err);
-				} else if (result.item) {
-					resolve(this._mapFields(result.item));
+				} else if (result.Item) {
+					resolve(this._mapFields(result.Item));
 				} else {
 					resolve({});
 				}
@@ -130,7 +138,7 @@ module.exports = class DynoMight {
 	_keyField() {
 		return this._definitionAsArray().find(entities => {
 			return (entities[1].isKey === true);
-		}) || null;
+		})[0] || null;
 	}
 
 	_mapFields(item) {
@@ -138,7 +146,7 @@ module.exports = class DynoMight {
 		this._definitionAsArray().forEach(entities => {
 			const [field, data] = entities;
 			if (field in item) {
-				responseData[field] = data;
+				responseData[field] = item[field];
 			}
 		});
 		return responseData;

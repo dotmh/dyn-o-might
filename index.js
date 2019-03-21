@@ -28,7 +28,13 @@ module.exports = class DynoMight {
 		return new Promise((resolve, reject) => {
 			const Item = {...{
 				[this._keyField()]: key
-			}, ...payload};
+            }, ...payload};
+            
+            const validation = isValid(item);
+
+            if (!validation.valid) {
+                throw new Error(validation.validation.join(' '));
+            }
 
 			this.db.put({
 				TableName: this.tableName,
@@ -71,7 +77,12 @@ module.exports = class DynoMight {
 		});
 
 		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
-	}
+    
+        return {
+            isValid: validation.length === 0,
+            errors: validation
+        };
+    }
 
 	_test(result, message) {
 		return result === false ? message : result;

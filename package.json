@@ -19,5 +19,17 @@
   "peerDependencies": {
     "aws-sdk": "^2.419.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "xo": {
+    "rules": {
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "arrow-parens": [
+        "error",
+        "always"
+      ]
+    }
+  }
 }

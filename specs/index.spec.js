@@ -18,9 +18,16 @@ describe("Dyn-O-Might", function () {
     //     AWSMock.restore(DynamoDB.DocumentClient, 'get');
     // });
 
+    before(function () {
+        // hack so that tests can be run indivisually
+        AWSMock.mock(DynamoDB.DocumentClient, 'get', function (params, callback) {
+            callback(null, {Item: {}});
+        });
+    })
+
     describe('#construct', function( ) {
         it("should create a new instance of the class", function () {
-            AWSMock.mock(DynamoDB.DocumentClient, 'get', function (params, callback) {
+            AWSMock.remock(DynamoDB.DocumentClient, 'get', function (params, callback) {
                 callback(null, {Item: {}});
             });
             const definition = mocks.basic;

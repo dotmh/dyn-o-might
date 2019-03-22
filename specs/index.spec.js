@@ -97,7 +97,11 @@ describe("Dyn-O-Might", function () {
             const result = dynomight.isValid(mocks.get.response.invalid);
 
             expect(result.isValid).to.be.false;
-        })
+        });
+
+        it("should not validate if a required field is missing");
+        it("should not validate if the key field is missing");
+        it("should not validate if the fields data is the wrong type");
 
     });
 

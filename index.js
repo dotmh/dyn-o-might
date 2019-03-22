@@ -34,8 +34,6 @@ module.exports = class DynoMight {
 				[this._keyField()]: key
 			}, ...payload};
 
-			console.log("PUT:", Item, payload);
-
 			const validation = this.isValid(Item);
 
 			if (!validation.isValid) {
@@ -82,11 +80,7 @@ module.exports = class DynoMight {
 
 		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
 
-		console.log("VALIDATION ERRRS", validation);
-
 		const errors = validation.filter((result) => result !== true);
-
-		console.log("ERRORs", errors, errors.length === 0);
 
 		return {
 			isValid: errors.length === 0,

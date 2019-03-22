@@ -83,6 +83,22 @@ describe("Dyn-O-Might", function () {
 
     describe("#isValid" , function () {
 
+        it("should validate against a valid payload", function () {
+            const definition = mocks.get.definition;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+            const result = dynomight.isValid(mocks.get.response.valid);
+
+            expect(result.isValid).to.be.true;
+        });
+
+        it("should not validate against an invalid payload", function () {
+            const definition = mocks.get.definition;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+            const result = dynomight.isValid(mocks.get.response.invalid);
+
+            expect(result.isValid).to.be.false;
+        })
+
     });
 
     describe("#put", function () {

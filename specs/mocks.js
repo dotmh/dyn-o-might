@@ -33,6 +33,11 @@ module.exports.get = {
             toCode: faker.address.countryCode(),
             fromCode: faker.address.countryCode()
         },
-        noData: {}
+        noData: {},
+        invalid: {
+            key: "dog",
+            text: faker.lorem.sentence(),
+            number: faker.random.number()
+        }
     }
 }

@@ -1,5 +1,6 @@
 const {expect} = require('chai');
-const AWS = require('aws-sdk-mock');
+const AWS = require('aws-sdk');
+const AWSMock = require('aws-sdk-mock');
 
 const mocks = require('./mocks');
 const Dynomight = require('..');
@@ -13,11 +14,17 @@ const DynamoDB = {
 
 describe("Dyn-O-Might", function () {
 
+    afterEach(function() {
+        AWSMock.restore(DynamoDB.DocumentClient, 'get');
+    });
+
     describe('#construct', function( ) {
         it("should create a new instance of the class", function () {
-            const ddb = AWS.mock(DynamoDB.DocumentClient, 'get', (params,cb) => cb(null));
+            AWSMock.mock(DynamoDB.DocumentClient, 'get', function (params, callback) {
+                callback(null, {Item: {}});
+            });
             const definition = mocks.basic;
-            const dynomight = new Dynomight(ddb, TableName, definition);
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
             expect(dynomight.definition).to.be.an("object").and.deep.include(definition);
             expect(dynomight.tableName).to.equal(TableName);
         });
@@ -26,14 +33,16 @@ describe("Dyn-O-Might", function () {
     describe('#get', function () {
         it("should get data from DynamoDB", async function () {
             const mockResponse = mocks.get.response.valid;
-            const ddb = AWS.mock(DynamoDB.DocumentClient, 'getItem', (params, cb) => {
-                cb(mockResponse);
+
+            AWSMock.mock(DynamoDB.DocumentClient, 'get', function (params, callback) {
+                callback(null, {Item: mockResponse});
             });
             const definition = mocks.get.definition;
-            const dynomight = new Dynomight(ddb, TableName, definition);
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
             const response = await dynomight.get(mocks.get.requests.valid.key);
             expect(response).to.deep.equal(mockResponse);
+
         });
     });
 });

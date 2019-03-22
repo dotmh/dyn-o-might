@@ -30,8 +30,8 @@ module.exports.get = {
         valid: {
             from: get_requests_reponse_valid_key,
             to: faker.lorem.sentence(),
-            toCode: faker.address.countryCode,
-            fromCode: faker.address.countryCode
+            toCode: faker.address.countryCode(),
+            fromCode: faker.address.countryCode()
         }
     }
 }

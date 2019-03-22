@@ -32,6 +32,7 @@ module.exports.get = {
             to: faker.lorem.sentence(),
             toCode: faker.address.countryCode(),
             fromCode: faker.address.countryCode()
-        }
+        },
+        noData: {}
     }
 }

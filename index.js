@@ -14,16 +14,12 @@ module.exports = class DynoMight {
 				}
 			};
 
-			console.log("PARAMS", params);
-
 			this.db.get(params, (err, result) => {
-				console.log("ITEM", err, result);
 
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
 					const mapped = this._mapFields(result.Item);
-					console.log("MAPPED", mapped);
 					resolve(mapped);
 				} else {
 					resolve(null);

@@ -14,10 +14,6 @@ const DynamoDB = {
 
 describe("Dyn-O-Might", function () {
 
-    // afterEach(function() {
-    //     AWSMock.restore(DynamoDB.DocumentClient, 'get');
-    // });
-
     before(function () {
         // hack so that tests can be run indivisually
         AWSMock.mock(DynamoDB.DocumentClient, 'get', function (params, callback) {

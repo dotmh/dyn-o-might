@@ -95,9 +95,36 @@ describe("Dyn-O-Might", function () {
             expect(result.isValid).to.be.false;
         });
 
-        it("should not validate if a required field is missing");
-        it("should not validate if the key field is missing");
-        it("should not validate if the fields data is the wrong type");
+        it("should not validate if a required field is missing", function() {
+            const definition = mocks.get.definition;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+            
+            const result = dynomight.isValid(mocks.get.response.missingRequired);
+
+            expect(result.isValid).to.be.false;
+            expect(result.errors).to.be.an("array").and.include('fromCode is required');
+        });
+
+        it("should not validate if the key field is missing", function () {
+            const definition = mocks.get.definition;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+            const result = dynomight.isValid(mocks.get.response.missingKeyField);
+
+            expect(result.isValid).to.be.false;
+            expect(result.errors).to.be.an('array').and.includes("Key field from is required")
+        });
+
+        it("should not validate if the fields data is the wrong type", function () {
+            const definition = mocks.get.definitionWithTypes;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+            const result = dynomight.isValid(mocks.get.response.withIncorrectType);
+
+            expect(result.isValid).to.be.false;
+            expect(result.errors).to.be.an('array')
+            .and.includes("to should be string but number found")           
+        });
 
     });
 

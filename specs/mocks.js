@@ -1,7 +1,7 @@
 const faker = require('faker');
 
 module.exports.basic = {
-    id : {
+    id: {
         isKey: true,
         required: true
     },
@@ -11,9 +11,34 @@ module.exports.basic = {
 
 const get_requests_reponse_valid_key = faker.lorem.sentence();
 
+module.exports.types = {
+
+    number: {
+        definition: {
+            key: {
+                isKey: true,
+            },
+            field: {
+                type: "number",
+                required: true
+            }
+        },
+        payload: {
+            valid: {
+                key: "A",
+                field: faker.random.number()
+            },
+            invalid: {
+                key: "A",
+                field: faker.random.word()
+            }
+        }
+    }
+}
+
 module.exports.get = {
     definition: {
-        from : {
+        from: {
             isKey: true,
             required: true
         },
@@ -22,7 +47,7 @@ module.exports.get = {
         fromCode: true
     },
     definitionWithTypes: {
-        from : {
+        from: {
             isKey: true,
             required: true,
             type: "string"
@@ -62,12 +87,12 @@ module.exports.get = {
             from: get_requests_reponse_valid_key,
             to: faker.lorem.sentence(),
             toCode: faker.address.countryCode(),
-            fromCode: undefined        
+            fromCode: undefined
         },
         missingKeyField: {
             to: faker.lorem.sentence(),
             toCode: faker.address.countryCode(),
-            fromCode: faker.address.countryCode()            
+            fromCode: faker.address.countryCode()
         },
         withIncorrectType: {
             from: get_requests_reponse_valid_key,

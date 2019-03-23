@@ -73,7 +73,7 @@ describe("Dyn-O-Might", function () {
                 const response = await dynomight.get(mocks.get.requests.valid.key);
             }
 
-            expect(fn).to.throw;
+            return expect(fn).to.throw;
         });
     });
 
@@ -124,6 +124,35 @@ describe("Dyn-O-Might", function () {
             expect(result.isValid).to.be.false;
             expect(result.errors).to.be.an('array')
             .and.includes("to should be string but number found")           
+        });
+
+        describe("#isRquired with types", function () {
+            Object.entries(mocks.types).forEach((typeData) => {
+                const [type, data] = typeData;
+
+                it(`should validate type ${type} as required`, function() {
+                    const definition = data.definition;
+                    const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+                    const result = dynomight.isValid(data.payload.valid);
+
+                    expect(result.isValid).to.be.true;
+                });
+
+                it(`shouldn't validate type ${type} as required when its the wrong type`, function () {
+                    const definition = data.definition;
+                    const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+                    
+                    const fieldType = typeof(data.payload.invalid.field);
+                    const result = dynomight.isValid(data.payload.invalid);
+                    
+                    const expectMessage = `field should be ${type} but ${fieldType} found`;
+
+                    expect(result.isValid).to.be.false;
+                    expect(result.errors).to.be.an('array')
+                            .and.includes(expectMessage)
+                });
+            });
         });
 
     });

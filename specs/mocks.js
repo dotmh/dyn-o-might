@@ -58,6 +58,50 @@ module.exports.types = {
             }
         }
     },
+
+    array: {
+        definition: {
+            key: {
+                isKey: true,
+            },
+            field: {
+                type: "array",
+                required: true
+            }
+        },
+        payload: {
+            valid: {
+                key: "A",
+                field: [faker.random.word()]
+            },
+            invalid: {
+                key: "A",
+                field: []
+            }
+        }
+    },
+
+    string: {
+        definition: {
+            key: {
+                isKey: true,
+            },
+            field: {
+                type: "string",
+                required: true
+            }
+        },
+        payload: {
+            valid: {
+                key: "A",
+                field: faker.random.word()
+            },
+            invalid: {
+                key: "A",
+                field: ""
+            }
+        }
+    },    
 }
 
 module.exports.get = {

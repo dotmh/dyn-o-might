@@ -82,6 +82,8 @@ module.exports = class DynoMight {
 
 		const errors = validation.filter((result) => result !== true);
 
+		console.log("Validation errors", errors);
+
 		return {
 			isValid: errors.length === 0,
 			errors
@@ -97,7 +99,7 @@ module.exports = class DynoMight {
 	}
 
 	_isType(data, type) {
-		return typeof (data) === type;
+		return type === 'array' ? Array.isArray(data) : typeof (data) === type;
 	}
 
 	_isRequired(data) {

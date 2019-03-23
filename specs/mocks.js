@@ -30,10 +30,34 @@ module.exports.types = {
             },
             invalid: {
                 key: "A",
-                field: faker.random.word()
+                field: 0
             }
         }
-    }
+    },
+
+    object: {
+        definition: {
+            key: {
+                isKey: true,
+            },
+            field: {
+                type: "object",
+                required: true
+            }
+        },
+        payload: {
+            valid: {
+                key: "A",
+                field: {
+                    a: faker.random.word()
+                }
+            },
+            invalid: {
+                key: "A",
+                field: {}
+            }
+        }
+    },
 }
 
 module.exports.get = {

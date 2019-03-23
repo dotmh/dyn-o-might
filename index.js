@@ -102,17 +102,17 @@ module.exports = class DynoMight {
 
 	_isRequired(data) {
 		let valid = true;
+
 		switch (typeof (data)) {
 			case "number":
 				valid = data !== 0;
 				break;
 			case "object":
-				if (Array.isArray) {
+				if (Array.isArray(data)) {
 					valid = data.length > 0;
 				} else {
 					valid = Object.keys(data).length > 0;
 				}
-
 				break;
 			case "symbol":
 			case "string":

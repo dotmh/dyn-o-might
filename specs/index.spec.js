@@ -139,18 +139,16 @@ describe("Dyn-O-Might", function () {
                     expect(result.isValid).to.be.true;
                 });
 
-                it(`shouldn't validate type ${type} as required when its the wrong type`, function () {
+                it(`shouldn't validate type ${type} as required when its emoty for the type`, function () {
                     const definition = data.definition;
                     const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
                     
                     const fieldType = typeof(data.payload.invalid.field);
                     const result = dynomight.isValid(data.payload.invalid);
                     
-                    const expectMessage = `field should be ${type} but ${fieldType} found`;
-
                     expect(result.isValid).to.be.false;
                     expect(result.errors).to.be.an('array')
-                            .and.includes(expectMessage)
+                            .and.includes('field is required')
                 });
             });
         });

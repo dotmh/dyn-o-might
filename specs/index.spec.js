@@ -23,6 +23,11 @@ describe("Dyn-O-Might", function () {
                 Item: {}
             });
         });
+        AWSMock.mock(DynamoDB.DocumentClient, 'put', function (params, callback) {
+            callback(null, {
+                Item: {}
+            });
+        });
     })
 
     describe('#construct', function () {
@@ -70,18 +75,21 @@ describe("Dyn-O-Might", function () {
             expect(response).to.equal(null);
         });
 
-        it("should reject the promise when AWS returns an error", async function () {
+        it("should reject the promise when AWS returns an error", function (done) {
+
+            const errorMessage = "Simulated Error";
+
             AWSMock.remock(DynamoDB.DocumentClient, 'get', function (params, callback) {
-                callback(new Error("Simulated Error"), null);
+                callback(new Error(errorMessage), null);
             });
 
             const definition = mocks.get.definition;
-            const fn = async () => {
-                const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-                const response = await dynomight.get(mocks.get.requests.valid.key);
-            }
 
-            return expect(fn).to.throw;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+            dynomight.get(mocks.get.requests.valid.key).catch((e) => {
+                expect(e.message).to.be.a('string').and.equal(errorMessage);
+                done();
+            });
         });
     });
 
@@ -165,6 +173,67 @@ describe("Dyn-O-Might", function () {
     });
 
     describe("#put", function () {
+        it("should store data in dynamo db", async function () {
+            const mockResponse = {
+                ...{from: mocks.put.requests.valid.key},
+                ...mocks.put.requests.valid.payload
+            };
 
+            AWSMock.remock(DynamoDB.DocumentClient, 'put', function (params, callback) {
+                callback(null, mockResponse);
+            });
+
+            const definition = mocks.put.definition;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+            const response = await dynomight.put(
+                mocks.put.requests.valid.key,
+                mocks.put.requests.valid.payload
+            );
+
+            expect(response).to.deep.equal(mockResponse);
+        });
+
+        it("should reject on invalid data in dynamo db", function (done) {
+            const mockResponse = {
+                ...{from: mocks.put.requests.valid.key},
+                ...mocks.put.requests.valid.payload
+            };
+
+            AWSMock.remock(DynamoDB.DocumentClient, 'put', function (params, callback) {
+                callback(null, mockResponse);
+            });
+
+            const definition = mocks.put.definition;
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+            const response = dynomight.put(
+                mocks.put.requests.valid.key,
+                mocks.put.requests.invalid.payload
+            ).catch((e) => {
+                expect(e.message).to.be.a('string').and.equal('toCode is required, fromCode is required');
+                done();
+            });
+        });
+
+        it("should reject the promise when AWS returns an error", function (done) {
+
+            const errorMessage = "Simulated Error";
+
+            AWSMock.remock(DynamoDB.DocumentClient, 'put', function (params, callback) {
+                callback(new Error(errorMessage), null);
+            });
+
+            const definition = mocks.get.definition;
+
+            const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+            dynomight.put(
+                mocks.put.requests.valid.key,
+                mocks.put.requests.valid.payload
+            ).catch((e) => {
+                expect(e.message).to.be.a('string').and.equal(errorMessage);
+                done();
+            });
+        });
     });
 });

@@ -1,5 +1,5 @@
 module.exports = class DynoMight {
-	constructor(db, tableName, definition = {}) {
+	constructor(db, tableName, definition) {
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;

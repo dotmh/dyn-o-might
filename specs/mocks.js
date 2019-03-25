@@ -101,8 +101,8 @@ module.exports.types = {
                 field: ""
             }
         }
-    },  
-    
+    },
+
     boolean: {
         definition: {
             key: {
@@ -137,7 +137,7 @@ module.exports.types = {
                 field: false
             }
         }
-    }   
+    }
 }
 
 module.exports.get = {
@@ -203,6 +203,34 @@ module.exports.get = {
             to: faker.random.number(),
             toCode: faker.address.countryCode(),
             fromCode: faker.address.countryCode()
+        }
+    },
+}
+
+module.exports.put = {
+    definition: {
+        from: {
+            isKey: true,
+            required: true
+        },
+        to: true,
+        toCode: true,
+        fromCode: true
+    },
+    requests: {
+        valid: {
+            key: faker.random.word(),
+            payload: {
+                to: faker.random.word(),
+                toCode: faker.address.countryCode(),
+                fromCode: faker.address.countryCode()
+            }
+        },
+        invalid: {
+            key: faker.random.word(),
+            payload: {
+                to: faker.random.word(),
+            }
         }
     }
 }

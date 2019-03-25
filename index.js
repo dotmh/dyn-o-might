@@ -1,5 +1,5 @@
 module.exports = class DynoMight {
-	constructor(db, tableName, definition = {}) {
+	constructor(db, tableName, definition) {
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;
@@ -14,16 +14,12 @@ module.exports = class DynoMight {
 				}
 			};
 
-			console.log("PARAMS", params);
-
 			this.db.get(params, (err, result) => {
-				console.log("ITEM", err, result);
 
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
 					const mapped = this._mapFields(result.Item);
-					console.log("MAPPED", mapped);
 					resolve(mapped);
 				} else {
 					resolve(null);
@@ -37,8 +33,6 @@ module.exports = class DynoMight {
 			const Item = {...{
 				[this._keyField()]: key
 			}, ...payload};
-
-			console.log("PUT:", Item, payload);
 
 			const validation = this.isValid(Item);
 
@@ -86,11 +80,7 @@ module.exports = class DynoMight {
 
 		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
 
-		console.log("VALIDATION ERRRS", validation);
-
 		const errors = validation.filter((result) => result !== true);
-
-		console.log("ERRORs", errors, errors.length === 0);
 
 		return {
 			isValid: errors.length === 0,
@@ -107,32 +97,29 @@ module.exports = class DynoMight {
 	}
 
 	_isType(data, type) {
-		return typeof (data) === type;
+		return type === 'array' ? Array.isArray(data) : typeof (data) === type;
 	}
 
 	_isRequired(data) {
 		let valid = true;
+
 		switch (typeof (data)) {
 			case "number":
 				valid = data !== 0;
 				break;
 			case "object":
-				if (Array.isArray) {
+				if (Array.isArray(data)) {
 					valid = data.length > 0;
 				} else {
 					valid = Object.keys(data).length > 0;
 				}
-
 				break;
-			case "symbol":
 			case "string":
 				valid = data.length > 0;
 				break;
 			case "boolean":
 				valid = data === true || data === false;
 				break;
-			case "function":
-			case "undefined":
 			default:
 				valid = false;
 				break;

@@ -116,7 +116,6 @@ module.exports = class DynoMight {
 					valid = Object.keys(data).length > 0;
 				}
 				break;
-			case "symbol":
 			case "string":
 				valid = data.length > 0;
 				break;

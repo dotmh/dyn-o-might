@@ -15,7 +15,6 @@ module.exports = class DynoMight {
 			};
 
 			this.db.get(params, (err, result) => {
-
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
@@ -97,7 +96,7 @@ module.exports = class DynoMight {
 	}
 
 	_isType(data, type) {
-		return type === 'array' ? Array.isArray(data) : typeof (data) === type;
+		return type === "array" ? Array.isArray(data) : typeof (data) === type;
 	}
 
 	_isRequired(data) {
@@ -113,6 +112,7 @@ module.exports = class DynoMight {
 				} else {
 					valid = Object.keys(data).length > 0;
 				}
+
 				break;
 			case "string":
 				valid = data.length > 0;

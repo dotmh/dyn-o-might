@@ -30,7 +30,10 @@
         "error",
         "always"
       ]
-    }
+    },
+    "env": [
+      "mocha"
+    ]
   },
   "devDependencies": {
     "aws-sdk": "^2.426.0",

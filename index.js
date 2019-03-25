@@ -82,8 +82,6 @@ module.exports = class DynoMight {
 
 		const errors = validation.filter((result) => result !== true);
 
-		console.log("Validation errors", errors);
-
 		return {
 			isValid: errors.length === 0,
 			errors
@@ -122,8 +120,6 @@ module.exports = class DynoMight {
 			case "boolean":
 				valid = data === true || data === false;
 				break;
-			case "function":
-			case "undefined":
 			default:
 				valid = false;
 				break;

@@ -101,7 +101,43 @@ module.exports.types = {
                 field: ""
             }
         }
-    },    
+    },  
+    
+    boolean: {
+        definition: {
+            key: {
+                isKey: true,
+            },
+            field: {
+                type: "boolean",
+                required: true
+            }
+        },
+        payload: {
+            valid: {
+                key: "A",
+                field: true
+            }
+        }
+    },
+
+    "Boolean false": {
+        definition: {
+            key: {
+                isKey: true,
+            },
+            field: {
+                type: "boolean",
+                required: true
+            }
+        },
+        payload: {
+            valid: {
+                key: "A",
+                field: false
+            }
+        }
+    }   
 }
 
 module.exports.get = {

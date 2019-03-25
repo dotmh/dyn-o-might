@@ -1,4 +1,6 @@
-const {expect} = require('chai');
+const {
+    expect
+} = require('chai');
 const AWS = require('aws-sdk');
 const AWSMock = require('aws-sdk-mock');
 
@@ -17,14 +19,18 @@ describe("Dyn-O-Might", function () {
     before(function () {
         // hack so that tests can be run indivisually
         AWSMock.mock(DynamoDB.DocumentClient, 'get', function (params, callback) {
-            callback(null, {Item: {}});
+            callback(null, {
+                Item: {}
+            });
         });
     })
 
-    describe('#construct', function( ) {
+    describe('#construct', function () {
         it("should create a new instance of the class", function () {
             AWSMock.remock(DynamoDB.DocumentClient, 'get', function (params, callback) {
-                callback(null, {Item: {}});
+                callback(null, {
+                    Item: {}
+                });
             });
             const definition = mocks.basic;
             const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
@@ -38,7 +44,9 @@ describe("Dyn-O-Might", function () {
             const mockResponse = mocks.get.response.valid;
 
             AWSMock.remock(DynamoDB.DocumentClient, 'get', function (params, callback) {
-                callback(null, {Item: mockResponse});
+                callback(null, {
+                    Item: mockResponse
+                });
             });
             const definition = mocks.get.definition;
             const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
@@ -77,7 +85,7 @@ describe("Dyn-O-Might", function () {
         });
     });
 
-    describe("#isValid" , function () {
+    describe("#isValid", function () {
 
         it("should validate against a valid payload", function () {
             const definition = mocks.get.definition;
@@ -95,10 +103,10 @@ describe("Dyn-O-Might", function () {
             expect(result.isValid).to.be.false;
         });
 
-        it("should not validate if a required field is missing", function() {
+        it("should not validate if a required field is missing", function () {
             const definition = mocks.get.definition;
             const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-            
+
             const result = dynomight.isValid(mocks.get.response.missingRequired);
 
             expect(result.isValid).to.be.false;
@@ -123,14 +131,14 @@ describe("Dyn-O-Might", function () {
 
             expect(result.isValid).to.be.false;
             expect(result.errors).to.be.an('array')
-            .and.includes("to should be string but number found")           
+                .and.includes("to should be string but number found")
         });
 
         describe("#isRquired with types", function () {
             Object.entries(mocks.types).forEach((typeData) => {
                 const [type, data] = typeData;
 
-                it(`should validate type ${type} as required`, function() {
+                it(`should validate type ${type} as required`, function () {
                     const definition = data.definition;
                     const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
@@ -139,17 +147,18 @@ describe("Dyn-O-Might", function () {
                     expect(result.isValid).to.be.true;
                 });
 
-                it(`shouldn't validate type ${type} as required when its emoty for the type`, function () {
-                    const definition = data.definition;
-                    const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-                    
-                    const fieldType = typeof(data.payload.invalid.field);
-                    const result = dynomight.isValid(data.payload.invalid);
-                    
-                    expect(result.isValid).to.be.false;
-                    expect(result.errors).to.be.an('array')
+                if ('invalid' in data.payload) {
+                    it(`shouldn't validate type ${type} as required when its emoty for the type`, function () {
+                        const definition = data.definition;
+                        const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+                        const result = dynomight.isValid(data.payload.invalid);
+
+                        expect(result.isValid).to.be.false;
+                        expect(result.errors).to.be.an('array')
                             .and.includes('field is required')
-                });
+                    });
+                }
             });
         });
 

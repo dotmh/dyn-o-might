@@ -4,7 +4,8 @@
   "description": "A Light weight wrapper for Dynamo DB functions.",
   "main": "index.js",
   "scripts": {
-    "test": "npx nyc mocha --recursive specs/*.spec.js --exit"
+    "test": "npx nyc mocha --recursive specs/*.spec.js --exit",
+    "test-with-coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage"
   },
   "repository": {
     "type": "git",

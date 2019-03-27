@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx nyc mocha --recursive specs/*.spec.js --exit",
-    "test-with-coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage"
+    "test:coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "aws-sdk": "^2.426.0",
     "aws-sdk-mock": "^4.3.1",
     "chai": "^4.2.0",
+    "codacy-coverage": "^3.4.0",
     "faker": "^4.1.0",
     "mocha": "^6.0.2",
     "nyc": "^13.3.0"

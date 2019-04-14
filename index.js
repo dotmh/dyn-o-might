@@ -8,7 +8,7 @@ module.exports = class DynoMight {
 		this.afterPutHook = "hook.after.put";
 		this.beforeGetHook = "hook.before.get";
 		this.afterGetHook = "hook.after.get";
-		// this.beforeValidationHook = "hook.before.validation";
+		// This.beforeValidationHook = "hook.before.validation";
 		// this.afterValidationHook = "hook.after.validation";
 
 		this.hooks = {};
@@ -16,15 +16,15 @@ module.exports = class DynoMight {
 			this.beforePutHook,
 			this.afterPutHook,
 			this.beforeGetHook,
-			this.afterGetHook,
-			// this.beforeValidationHook,
+			this.afterGetHook
+			// This.beforeValidationHook,
 			// this.afterValidationHook
 		];
 	}
 
 	get(key) {
 		return new Promise((resolve, reject) => {
-			const params = {
+			let params = {
 				TableName: this.tableName,
 				Key: {
 					[this._keyField()]: key
@@ -35,7 +35,7 @@ module.exports = class DynoMight {
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
-					const mapped = this._mapFields(result.Item);
+					let mapped = this._mapFields(result.Item);
 					mapped = this._triggerHook(this.afterGetHook, mapped);
 					resolve(mapped);
 				} else {
@@ -47,7 +47,7 @@ module.exports = class DynoMight {
 
 	put(key, payload) {
 		return new Promise((resolve, reject) => {
-			const Item = {...{
+			let Item = {...{
 				[this._keyField()]: key
 			}, ...payload};
 
@@ -179,7 +179,7 @@ module.exports = class DynoMight {
 	}
 
 	_triggerHook(hookName, event) {
-		if ( hookName in this.hooks) {
+		if (hookName in this.hooks) {
 			this.hooks[hookName].forEach((hook) => {
 				event = hook.call(this, event);
 			});

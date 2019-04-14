@@ -8,8 +8,6 @@ module.exports = class DynoMight {
 		this.afterPutHook = "hook.after.put";
 		this.beforeGetHook = "hook.before.get";
 		this.afterGetHook = "hook.after.get";
-		// This.beforeValidationHook = "hook.before.validation";
-		// this.afterValidationHook = "hook.after.validation";
 
 		this.hooks = {};
 		this.validHooks = [
@@ -17,8 +15,6 @@ module.exports = class DynoMight {
 			this.afterPutHook,
 			this.beforeGetHook,
 			this.afterGetHook
-			// This.beforeValidationHook,
-			// this.afterValidationHook
 		];
 	}
 

@@ -3,6 +3,23 @@ module.exports = class DynoMight {
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;
+
+		this.beforePutHook = "hook.before.put";
+		this.afterPutHook = "hook.after.put";
+		this.beforeGetHook = "hook.before.get";
+		this.afterGetHook = "hook.after.get";
+		this.beforeValidationHook = "hook.before.validation";
+		this.afterValidationHook = "hook.after.validation";
+
+		this.hooks = {};
+		this.validHooks = [
+			this.beforePutHook,
+			this.afterPutHook,
+			this.beforeGetHook,
+			this.afterGetHook,
+			this.beforeValidationHook,
+			this.afterValidationHook
+		];
 	}
 
 	get(key) {
@@ -87,6 +104,15 @@ module.exports = class DynoMight {
 		};
 	}
 
+	on(hookName, fn) {
+		if (this.validHooks.lastIndexOf(hookName) === -1) {
+			throw new Error(`Hook ${hookName} does not exist`);
+		}
+
+		this.hooks[hookName] = this.hooks[hookName] || [];
+		this.hooks[hookName].push(fn);
+	}
+
 	_test(result, message) {
 		return result === false ? message : result;
 	}
@@ -147,5 +173,11 @@ module.exports = class DynoMight {
 
 	_definitionAsArray() {
 		return Object.entries(this.definition);
+	}
+
+	_triggerHook(hookName, ...params) {
+		if ( hookName in this.hooks) {
+			this.hooks[hookName].forEach((cb.apply(this, params)));
+		}
 	}
 };

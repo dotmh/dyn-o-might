@@ -230,4 +230,11 @@ describe("Dyn-O-Might", () => {
 			});
 		});
 	});
+
+	describe("Hooks", () => {
+		it("should fire before a get event");
+		it("should fire after a get event");
+		it("should fire before a put event");
+		it("should fire after a put event");
+	})
 });

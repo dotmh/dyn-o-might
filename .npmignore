@@ -1,0 +1,5 @@
+_notes
+.nyc_output
+coverage
+node_modules
+specs

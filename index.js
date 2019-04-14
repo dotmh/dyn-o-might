@@ -8,8 +8,8 @@ module.exports = class DynoMight {
 		this.afterPutHook = "hook.after.put";
 		this.beforeGetHook = "hook.before.get";
 		this.afterGetHook = "hook.after.get";
-		this.beforeValidationHook = "hook.before.validation";
-		this.afterValidationHook = "hook.after.validation";
+		// this.beforeValidationHook = "hook.before.validation";
+		// this.afterValidationHook = "hook.after.validation";
 
 		this.hooks = {};
 		this.validHooks = [
@@ -17,8 +17,8 @@ module.exports = class DynoMight {
 			this.afterPutHook,
 			this.beforeGetHook,
 			this.afterGetHook,
-			this.beforeValidationHook,
-			this.afterValidationHook
+			// this.beforeValidationHook,
+			// this.afterValidationHook
 		];
 	}
 
@@ -30,12 +30,13 @@ module.exports = class DynoMight {
 					[this._keyField()]: key
 				}
 			};
-
+			params = this._triggerHook(this.beforeGetHook, params);
 			this.db.get(params, (err, result) => {
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
 					const mapped = this._mapFields(result.Item);
+					mapped = this._triggerHook(this.afterGetHook, mapped);
 					resolve(mapped);
 				} else {
 					resolve(null);
@@ -50,6 +51,7 @@ module.exports = class DynoMight {
 				[this._keyField()]: key
 			}, ...payload};
 
+			Item = this._triggerHook(this.beforePutHook, Item);
 			const validation = this.isValid(Item);
 
 			if (!validation.isValid) {
@@ -64,6 +66,7 @@ module.exports = class DynoMight {
 				if (err) {
 					reject(err);
 				} else {
+					Item = this._triggerHook(this.afterPutHook, Item);
 					resolve(Item);
 				}
 			});
@@ -175,9 +178,13 @@ module.exports = class DynoMight {
 		return Object.entries(this.definition);
 	}
 
-	_triggerHook(hookName, ...params) {
+	_triggerHook(hookName, event) {
 		if ( hookName in this.hooks) {
-			this.hooks[hookName].forEach((cb.apply(this, params)));
+			this.hooks[hookName].forEach((hook) => {
+				event = hook.call(this, event);
+			});
 		}
+
+		return event;
 	}
 };

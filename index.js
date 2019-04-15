@@ -4,10 +4,10 @@ module.exports = class DynoMight {
 		this.tableName = tableName;
 		this.definition = definition;
 
-		this.beforePutHook = "hook.before.put";
-		this.afterPutHook = "hook.after.put";
-		this.beforeGetHook = "hook.before.get";
-		this.afterGetHook = "hook.after.get";
+		this.beforePutHook = Symbol("hook.before.put");
+		this.afterPutHook = Symbol("hook.after.put");
+		this.beforeGetHook = Symbol("hook.before.get");
+		this.afterGetHook = Symbol("hook.after.get");
 
 		this.hooks = {};
 		this.validHooks = [

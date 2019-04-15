@@ -232,7 +232,23 @@ describe("Dyn-O-Might", () => {
 	});
 
 	describe("Hooks", () => {
-		it("should fire before a get event");
+		it("should fire before a get event", (done) => {
+			const key = "foobar";
+
+			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
+				expect(params).to.be.a("string").and.equal(key);
+				callback(null, {Item: null});
+				done();
+			});
+
+			const {definition} = mocks.get;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.beforeGetHook, (params) => params.Key = key);
+
+			dynomight.get(mocks.get.requests.valid.key);
+
+		});
 		it("should fire after a get event");
 		it("should fire before a put event");
 		it("should fire after a put event");

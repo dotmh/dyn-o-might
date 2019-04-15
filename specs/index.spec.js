@@ -247,10 +247,29 @@ describe("Dyn-O-Might", () => {
 			dynomight.on(dynomight.beforeGetHook, (params) => params.Key = key);
 
 			dynomight.get(mocks.get.requests.valid.key);
-
 		});
-		it("should fire after a get event");
+
+		it("should fire after a get event", async () => {
+			const add = "foobar";
+			const {definition} = mocks.get;
+			const mockResponse = mocks.get.response.valid;
+
+			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
+				callback(null, {
+					Item: mockResponse
+				});
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.afterGetHook, (params) => {
+				params.to = add;
+				return params;
+			});
+
+			const response = await dynomight.get(mocks.get.requests.valid.key);
+			expect(response.to).to.equal(add);
+		});
 		it("should fire before a put event");
 		it("should fire after a put event");
-	})
+	});
 });

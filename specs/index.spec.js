@@ -212,7 +212,7 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should reject the promise when AWS returns an error", (done) => {
-			const errorMessage = "Simulated Error";
+			const errorMessage = mocks.faker.random.words(3);
 
 			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
 				callback(new Error(errorMessage), null);
@@ -233,7 +233,7 @@ describe("Dyn-O-Might", () => {
 
 	describe("Hooks", () => {
 		it("should fire before a get event", (done) => {
-			const key = "foobar";
+			const key = mocks.faker.random.word();
 
 			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
 				expect(params.Key).to.be.a("string").and.equal(key);
@@ -253,7 +253,7 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should fire after a get event", async () => {
-			const add = "foobar";
+			const add = mocks.faker.random.word();
 			const {definition} = mocks.get;
 			const mockResponse = mocks.get.response.valid;
 

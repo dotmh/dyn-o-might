@@ -272,7 +272,28 @@ describe("Dyn-O-Might", () => {
 			const response = await dynomight.get(mocks.get.requests.valid.key);
 			expect(response.to).to.equal(add);
 		});
-		it("should fire before a put event");
+
+		it("should fire before a put event", async () => {
+			const {definition} = mocks.put;
+			const fake = mocks.faker.random.word();
+
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
+				expect(params.Item.to).to.be.a("string").and.equal(fake);
+				callback(null, params.Item);
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.beforePutHook, (params) => {
+				params.to = fake;
+				return params;
+			});
+
+			await dynomight.put(				
+				mocks.put.requests.valid.key,
+				mocks.put.requests.valid.payload
+			);
+		});
+
 		it("should fire after a put event");
 	});
 });

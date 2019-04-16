@@ -212,7 +212,7 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should reject the promise when AWS returns an error", (done) => {
-			const errorMessage = "Simulated Error";
+			const errorMessage = mocks.faker.random.words(3);
 
 			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
 				callback(new Error(errorMessage), null);
@@ -228,6 +228,97 @@ describe("Dyn-O-Might", () => {
 				expect(error.message).to.be.a("string").and.equal(errorMessage);
 				done();
 			});
+		});
+	});
+
+	describe("Hooks", () => {
+		it("should fire before a get event", (done) => {
+			const key = mocks.faker.random.word();
+
+			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
+				expect(params.Key).to.be.a("string").and.equal(key);
+				callback(null, {Item: null});
+				done();
+			});
+
+			const {definition} = mocks.get;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.beforeGetHook, (params) => {
+				params.Key = key;
+				return params;
+			});
+
+			dynomight.get(mocks.get.requests.valid.key);
+		});
+
+		it("should fire after a get event", async () => {
+			const add = mocks.faker.random.word();
+			const {definition} = mocks.get;
+			const mockResponse = mocks.get.response.valid;
+
+			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
+				callback(null, {
+					Item: mockResponse
+				});
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.afterGetHook, (params) => {
+				params.to = add;
+				return params;
+			});
+
+			const response = await dynomight.get(mocks.get.requests.valid.key);
+			expect(response.to).to.equal(add);
+		});
+
+		it("should fire before a put event", async () => {
+			const {definition} = mocks.put;
+			const fake = mocks.faker.random.word();
+
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
+				expect(params.Item.to).to.be.a("string").and.equal(fake);
+				callback(null, params.Item);
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.beforePutHook, (params) => {
+				params.to = fake;
+				return params;
+			});
+
+			await dynomight.put(
+				mocks.put.requests.valid.key,
+				mocks.put.requests.valid.payload
+			);
+		});
+
+		it("should fire after a put event", async () => {
+			const {definition} = mocks.put;
+			const fake = mocks.faker.random.word();
+			const key = "from";
+			const mockResponse = {
+				...{from: mocks.put.requests.valid.key},
+				...mocks.put.requests.valid.payload
+			};
+
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
+				callback(null, mockResponse);
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.afterPutHook, (params) => {
+				params[key] = fake;
+				return params;
+			});
+
+			const response = await dynomight.put(
+				mocks.put.requests.valid.key,
+				mocks.put.requests.valid.payload
+			);
+
+			expect(response[key]).to.be.a("string").and.equal(fake);
 		});
 	});
 });

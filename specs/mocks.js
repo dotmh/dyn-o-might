@@ -1,5 +1,7 @@
 const faker = require("faker");
 
+module.exports.faker = faker;
+
 module.exports.basic = {
 	id: {
 		isKey: true,

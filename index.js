@@ -3,22 +3,36 @@ module.exports = class DynoMight {
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;
+
+		this.beforePutHook = Symbol("hook.before.put");
+		this.afterPutHook = Symbol("hook.after.put");
+		this.beforeGetHook = Symbol("hook.before.get");
+		this.afterGetHook = Symbol("hook.after.get");
+
+		this.hooks = {};
+		this.validHooks = [
+			this.beforePutHook,
+			this.afterPutHook,
+			this.beforeGetHook,
+			this.afterGetHook
+		];
 	}
 
 	get(key) {
 		return new Promise((resolve, reject) => {
-			const params = {
+			let params = {
 				TableName: this.tableName,
 				Key: {
 					[this._keyField()]: key
 				}
 			};
-
+			params = this._triggerHook(this.beforeGetHook, params);
 			this.db.get(params, (err, result) => {
 				if (err) {
 					reject(err);
 				} else if (result.Item) {
-					const mapped = this._mapFields(result.Item);
+					let mapped = this._mapFields(result.Item);
+					mapped = this._triggerHook(this.afterGetHook, mapped);
 					resolve(mapped);
 				} else {
 					resolve(null);
@@ -29,10 +43,11 @@ module.exports = class DynoMight {
 
 	put(key, payload) {
 		return new Promise((resolve, reject) => {
-			const Item = {...{
+			let Item = {...{
 				[this._keyField()]: key
 			}, ...payload};
 
+			Item = this._triggerHook(this.beforePutHook, Item);
 			const validation = this.isValid(Item);
 
 			if (!validation.isValid) {
@@ -47,6 +62,7 @@ module.exports = class DynoMight {
 				if (err) {
 					reject(err);
 				} else {
+					Item = this._triggerHook(this.afterPutHook, Item);
 					resolve(Item);
 				}
 			});
@@ -85,6 +101,15 @@ module.exports = class DynoMight {
 			isValid: errors.length === 0,
 			errors
 		};
+	}
+
+	on(hookName, fn) {
+		if (this.validHooks.lastIndexOf(hookName) === -1) {
+			throw new Error(`Hook ${hookName} does not exist`);
+		}
+
+		this.hooks[hookName] = this.hooks[hookName] || [];
+		this.hooks[hookName].push(fn);
 	}
 
 	_test(result, message) {
@@ -147,5 +172,15 @@ module.exports = class DynoMight {
 
 	_definitionAsArray() {
 		return Object.entries(this.definition);
+	}
+
+	_triggerHook(hookName, event) {
+		if (hookName in this.hooks) {
+			this.hooks[hookName].forEach((hook) => {
+				event = hook.call(this, event);
+			});
+		}
+
+		return event;
 	}
 };

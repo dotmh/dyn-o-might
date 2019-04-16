@@ -245,7 +245,7 @@ describe("Dyn-O-Might", () => {
 
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 			dynomight.on(dynomight.beforeGetHook, (params) => {
-				params.Key = key
+				params.Key = key;
 				return params;
 			});
 
@@ -288,7 +288,7 @@ describe("Dyn-O-Might", () => {
 				return params;
 			});
 
-			await dynomight.put(				
+			await dynomight.put(
 				mocks.put.requests.valid.key,
 				mocks.put.requests.valid.payload
 			);
@@ -303,7 +303,7 @@ describe("Dyn-O-Might", () => {
 				...mocks.put.requests.valid.payload
 			};
 
-			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
 				callback(null, mockResponse);
 			});
 

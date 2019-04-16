@@ -236,7 +236,7 @@ describe("Dyn-O-Might", () => {
 			const key = "foobar";
 
 			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
-				expect(params).to.be.a("string").and.equal(key);
+				expect(params.Key).to.be.a("string").and.equal(key);
 				callback(null, {Item: null});
 				done();
 			});
@@ -244,7 +244,10 @@ describe("Dyn-O-Might", () => {
 			const {definition} = mocks.get;
 
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			dynomight.on(dynomight.beforeGetHook, (params) => params.Key = key);
+			dynomight.on(dynomight.beforeGetHook, (params) => {
+				params.Key = key
+				return params;
+			});
 
 			dynomight.get(mocks.get.requests.valid.key);
 		});

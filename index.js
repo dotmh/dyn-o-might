@@ -8,13 +8,17 @@ module.exports = class DynoMight {
 		this.afterPutHook = Symbol("hook.after.put");
 		this.beforeGetHook = Symbol("hook.before.get");
 		this.afterGetHook = Symbol("hook.after.get");
+		this.beforeDeleteHook = Symbol("hook.before.delete");
+		this.afterDeleteHook = Symbol("hook.after.delete");
 
 		this.hooks = {};
 		this.validHooks = [
 			this.beforePutHook,
 			this.afterPutHook,
 			this.beforeGetHook,
-			this.afterGetHook
+			this.afterGetHook,
+			this.beforeDeleteHook,
+			this.afterDeleteHook
 		];
 	}
 
@@ -66,6 +70,38 @@ module.exports = class DynoMight {
 					resolve(Item);
 				}
 			});
+		});
+	}
+
+	delete(key) {
+		return new Promise((resolve, reject) => {
+			let canDelete = true;
+			if (this._hasHandlers(this.beforeDeleteHook)) {
+				canDelete = this._triggerHook(this.beforeDeleteHook, key);
+			}
+
+			if(!canDelete) {
+				resolve({
+					status: false
+				});
+			}
+
+			this.db.delete({
+				TableName: this.tableName,
+				Key: key
+			}, (err, data) => {
+				if (err) {
+					reject(err);
+				} else {
+					let response = {
+						status: true,
+						data
+					};
+
+					response = this._triggerHook(this.afterDeleteHook);
+					resolve(response);
+				}
+			})
 		});
 	}
 
@@ -182,5 +218,9 @@ module.exports = class DynoMight {
 		}
 
 		return event;
+	}
+
+	_hasHandlers(hookName) {
+		return (hookName in this.hooks && Array.isArray(this.hooks[hookName]) && this.hooks[hookName].length > 0);
 	}
 };

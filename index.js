@@ -82,7 +82,8 @@ module.exports = class DynoMight {
 
 			if(!canDelete) {
 				resolve({
-					status: false
+					status: false,
+					data: null
 				});
 			}
 

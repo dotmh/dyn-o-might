@@ -233,7 +233,8 @@ describe("Dyn-O-Might", () => {
 					}
 				});
 			});
-		});
+	});
+
 	describe("Hooks", () => {
 		it("should fire before a get event", (done) => {
 			const key = mocks.faker.random.word();

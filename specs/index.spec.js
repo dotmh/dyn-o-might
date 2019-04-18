@@ -90,83 +90,6 @@ describe("Dyn-O-Might", () => {
 		});
 	});
 
-	describe("#isValid", () => {
-		it("should validate against a valid payload", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			const result = dynomight.isValid(mocks.get.response.valid);
-
-			expect(result.isValid).to.be.true; //eslint-
-		});
-
-		it("should not validate against an invalid payload", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			const result = dynomight.isValid(mocks.get.response.invalid);
-
-			expect(result.isValid).to.be.false;
-		});
-
-		it("should not validate if a required field is missing", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-			const result = dynomight.isValid(mocks.get.response.missingRequired);
-
-			expect(result.isValid).to.be.false;
-			expect(result.errors).to.be.an("array").and.include("fromCode is required");
-		});
-
-		it("should not validate if the key field is missing", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-			const result = dynomight.isValid(mocks.get.response.missingKeyField);
-
-			expect(result.isValid).to.be.false;
-			expect(result.errors).to.be.an("array").and.includes("Key field from is required");
-		});
-
-		it("should not validate if the fields data is the wrong type", () => {
-			const definition = mocks.get.definitionWithTypes;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-			const result = dynomight.isValid(mocks.get.response.withIncorrectType);
-
-			expect(result.isValid).to.be.false;
-			expect(result.errors).to.be.an("array")
-				.and.includes("to should be string but number found");
-		});
-
-		describe("#isRquired with types", () => {
-			Object.entries(mocks.types).forEach((typeData) => {
-				const [type, data] = typeData;
-
-				it(`should validate type ${type} as required`, () => {
-					const {definition} = data;
-					const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-					const result = dynomight.isValid(data.payload.valid);
-
-					expect(result.isValid).to.be.true;
-				});
-
-				if ("invalid" in data.payload) {
-					it(`shouldn't validate type ${type} as required when its emoty for the type`, () => {
-						const {definition} = data;
-						const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-						const result = dynomight.isValid(data.payload.invalid);
-
-						expect(result.isValid).to.be.false;
-						expect(result.errors).to.be.an("array")
-							.and.includes("field is required");
-					});
-				}
-			});
-		});
-	});
-
 	describe("#put", () => {
 		it("should store data in dynamo db", async () => {
 			const mockResponse = {
@@ -231,6 +154,86 @@ describe("Dyn-O-Might", () => {
 		});
 	});
 
+	describe("#delete", () => {
+		it("should delete the record from DynamoDB");
+	});
+
+	describe("#isValid", () => {
+			it("should validate against a valid payload", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				const result = dynomight.isValid(mocks.get.response.valid);
+
+				expect(result.isValid).to.be.true; //eslint-
+			});
+
+			it("should not validate against an invalid payload", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				const result = dynomight.isValid(mocks.get.response.invalid);
+
+				expect(result.isValid).to.be.false;
+			});
+
+			it("should not validate if a required field is missing", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				const result = dynomight.isValid(mocks.get.response.missingRequired);
+
+				expect(result.isValid).to.be.false;
+				expect(result.errors).to.be.an("array").and.include("fromCode is required");
+			});
+
+			it("should not validate if the key field is missing", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				const result = dynomight.isValid(mocks.get.response.missingKeyField);
+
+				expect(result.isValid).to.be.false;
+				expect(result.errors).to.be.an("array").and.includes("Key field from is required");
+			});
+
+			it("should not validate if the fields data is the wrong type", () => {
+				const definition = mocks.get.definitionWithTypes;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				const result = dynomight.isValid(mocks.get.response.withIncorrectType);
+
+				expect(result.isValid).to.be.false;
+				expect(result.errors).to.be.an("array")
+					.and.includes("to should be string but number found");
+			});
+
+			describe("#isRquired with types", () => {
+				Object.entries(mocks.types).forEach((typeData) => {
+					const [type, data] = typeData;
+
+					it(`should validate type ${type} as required`, () => {
+						const {definition} = data;
+						const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+						const result = dynomight.isValid(data.payload.valid);
+
+						expect(result.isValid).to.be.true;
+					});
+
+					if ("invalid" in data.payload) {
+						it(`shouldn't validate type ${type} as required when its emoty for the type`, () => {
+							const {definition} = data;
+							const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+							const result = dynomight.isValid(data.payload.invalid);
+
+							expect(result.isValid).to.be.false;
+							expect(result.errors).to.be.an("array")
+								.and.includes("field is required");
+						});
+					}
+				});
+			});
+		});
 	describe("Hooks", () => {
 		it("should fire before a get event", (done) => {
 			const key = mocks.faker.random.word();
@@ -320,5 +323,10 @@ describe("Dyn-O-Might", () => {
 
 			expect(response[key]).to.be.a("string").and.equal(fake);
 		});
+
+		it("should fire before a delete event");
+		it("should fire after the delete event");
+		
+		it("should throw an error when you specifiy an non-existant hook");
 	});
 });

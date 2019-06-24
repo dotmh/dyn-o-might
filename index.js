@@ -75,12 +75,15 @@ module.exports = class DynoMight {
 
 	delete(key) {
 		return new Promise((resolve, reject) => {
-			let canDelete = true;
+			let event = {
+				key,
+				canDelete: true
+			};
 			if (this._hasHandlers(this.beforeDeleteHook)) {
-				canDelete = this._triggerHook(this.beforeDeleteHook, key);
+				event = this._triggerHook(this.beforeDeleteHook, event);
 			}
 
-			if(!canDelete) {
+			if(!event.canDelete) {
 				resolve({
 					status: false,
 					data: null
@@ -99,7 +102,7 @@ module.exports = class DynoMight {
 						data
 					};
 
-					response = this._triggerHook(this.afterDeleteHook);
+					response = this._triggerHook(this.afterDeleteHook, response);
 					resolve(response);
 				}
 			})
@@ -142,7 +145,7 @@ module.exports = class DynoMight {
 
 	on(hookName, fn) {
 		if (this.validHooks.lastIndexOf(hookName) === -1) {
-			throw new Error(`Hook ${hookName} does not exist`);
+			throw new Error(`Hook ${hookName.toString()} does not exist`);
 		}
 
 		this.hooks[hookName] = this.hooks[hookName] || [];

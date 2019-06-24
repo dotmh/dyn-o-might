@@ -160,7 +160,18 @@ describe("Dyn-O-Might", () => {
 	});
 
 	describe("#delete", () => {
-		it("should delete the record from DynamoDB");
+		it("should delete the record from DynamoDB", async () => {
+
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(null, mocks.delete.response.valid);
+			});
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+			expect(response.status).to.be.true;
+		});
 	});
 
 	describe("#isValid", () => {
@@ -333,6 +344,14 @@ describe("Dyn-O-Might", () => {
 		it("should fire before a delete event");
 		it("should fire after the delete event");
 		
-		it("should throw an error when you specifiy an non-existant hook");
+		it("should throw an error when you specifiy an non-existant hook", () => {
+			const hook = Symbol("hook.does.not.exist");
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			const fn = () => dynomight.on(hook, () => null);
+
+			expect(fn).to.throw(`Hook ${hook.toString()} does not exist`)
+		});
 	});
 });

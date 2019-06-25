@@ -83,7 +83,7 @@ module.exports = class DynoMight {
 				event = this._triggerHook(this.beforeDeleteHook, event);
 			}
 
-			if(!event.canDelete) {
+			if (!event.canDelete) {
 				resolve({
 					status: false,
 					data: null
@@ -105,7 +105,7 @@ module.exports = class DynoMight {
 					response = this._triggerHook(this.afterDeleteHook, response);
 					resolve(response);
 				}
-			})
+			});
 		});
 	}
 

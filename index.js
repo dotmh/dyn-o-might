@@ -113,7 +113,7 @@ module.exports = class DynoMight {
 	}
 
 	isValid(payload) {
-		const validation = [];
+		let validation = [];
 		let event = {
 			preventDefault: false,
 			data: payload,
@@ -127,7 +127,7 @@ module.exports = class DynoMight {
 		}
 
 		if ("result" in event) {
-			validation.concat(event.result);
+			validation = validation.concat(event.result);
 		}
 
 		if (!("preventDefault" in event) || ("preventDefault" in event && event.preventDefault === false)) {

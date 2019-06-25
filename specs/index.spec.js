@@ -266,6 +266,77 @@ describe("Dyn-O-Might", () => {
 		});
 	});
 
+	describe("Validation Hook", () => {
+
+		it("should populate the event with the payload", (done) => {
+			const mockData = mocks.get.response.valid;
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			dynomight.on(dynomight.validationHook, (event) => {
+				expect(event.data).to.deep.equal(mockData);
+				done();
+			});
+
+			dynomight.isValid(mockData);
+		});
+
+		it("should populate the event with the defintion", (done) => {
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			dynomight.on(dynomight.validationHook, (event) => {
+				expect(event.definition).to.deep.equal(definition);
+				done();
+			});
+
+			dynomight.isValid(mocks.get.response.valid);
+		});
+
+		it("should populate the event with the defintion", (done) => {
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			dynomight.on(dynomight.validationHook, (event) => {
+				expect(event.tableName).to.deep.equal(dynomight.tableName);
+				done();
+			});
+
+			dynomight.isValid(mocks.get.response.valid);
+		});
+
+		it("should validate against it own rules and report back", () => {
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			const fakeError = mocks.faker.random.words(4);
+
+			dynomight.on(dynomight.validationHook, (event) => {
+				event.result.push(fakeError);
+				return event;
+			});
+
+			const result = dynomight.isValid(mocks.get.response.valid);
+
+			expect(result.isValid).to.be.false;
+			expect(result.errors).to.be.an("array").and.includes(fakeError);
+		});
+
+		it("should be able to prevent the default validation rules", () => {
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			
+			dynomight.on(dynomight.validationHook, (event) => {
+				event.preventDefault = true;
+				return event;
+			});
+			
+			const result = dynomight.isValid(mocks.get.response.invalid);
+
+			expect(result.isValid).to.be.true;
+		});
+	});
+
 	describe("Hooks", () => {
 		it("should fire before a get event", (done) => {
 			const key = mocks.faker.random.word();

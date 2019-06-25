@@ -11,6 +11,8 @@ module.exports = class DynoMight {
 		this.beforeDeleteHook = Symbol("hook.before.delete");
 		this.afterDeleteHook = Symbol("hook.after.delete");
 
+		this.validationHook = Symbol("hook.validation");
+
 		this.hooks = {};
 		this.validHooks = [
 			this.beforePutHook,
@@ -18,7 +20,8 @@ module.exports = class DynoMight {
 			this.beforeGetHook,
 			this.afterGetHook,
 			this.beforeDeleteHook,
-			this.afterDeleteHook
+			this.afterDeleteHook,
+			this.validationHook
 		];
 	}
 
@@ -83,7 +86,7 @@ module.exports = class DynoMight {
 				event = this._triggerHook(this.beforeDeleteHook, event);
 			}
 
-			if(!event.canDelete) {
+			if (!event.canDelete) {
 				resolve({
 					status: false,
 					data: null
@@ -105,35 +108,52 @@ module.exports = class DynoMight {
 					response = this._triggerHook(this.afterDeleteHook, response);
 					resolve(response);
 				}
-			})
+			});
 		});
 	}
 
 	isValid(payload) {
-		const validation = [];
+		let validation = [];
+		let event = {
+			preventDefault: false,
+			data: payload,
+			definition: this.definition,
+			tableName: this.tableName,
+			result: []
+		};
 
-		this._definitionAsArray().forEach((entities) => {
-			const [field, data] = entities;
-			const item = field in payload ? payload[field] : undefined;
-			if (this._isType(data, "object")) {
-				if ("type" in data) {
-					validation.push(
-						this._test(
-							this._isType(item, data.type),
-							`${field} should be ${data.type} but ${typeof (item)} found`
-						)
-					);
-				}
+		if (this._hasHandlers(this.validationHook)) {
+			event = this._triggerHook(this.validationHook, event);
+		}
 
-				if ("required" in data && data.required === true) {
+		if ("result" in event) {
+			validation = validation.concat(event.result);
+		}
+
+		if (!("preventDefault" in event) || ("preventDefault" in event && event.preventDefault === false)) {
+			this._definitionAsArray().forEach((entities) => {
+				const [field, data] = entities;
+				const item = field in payload ? payload[field] : undefined;
+				if (this._isType(data, "object")) {
+					if ("type" in data) {
+						validation.push(
+							this._test(
+								this._isType(item, data.type),
+								`${field} should be ${data.type} but ${typeof (item)} found`
+							)
+						);
+					}
+
+					if ("required" in data && data.required === true) {
+						validation.push(this._test(this._isRequired(item), `${field} is required`));
+					}
+				} else if (data === true) {
 					validation.push(this._test(this._isRequired(item), `${field} is required`));
 				}
-			} else if (data === true) {
-				validation.push(this._test(this._isRequired(item), `${field} is required`));
-			}
-		});
+			});
 
-		validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
+			validation.push(this._test(this._hasKey(payload), `Key field ${this._keyField()} is required`));
+		}
 
 		const errors = validation.filter((result) => result !== true);
 

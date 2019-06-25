@@ -157,7 +157,7 @@ module.exports.delete = {
 	response: {
 		valid: {}
 	}
-}
+};
 
 module.exports.get = {
 	definition: {

@@ -172,6 +172,22 @@ describe("Dyn-O-Might", () => {
 
 			expect(response.status).to.be.true;
 		});
+
+		it("should reject the promise when AWS returns an error", (done) => {
+			const errorMessage = mocks.faker.random.words(3);
+
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(new Error(errorMessage), null);
+			});
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			dynomight.delete(mocks.delete.requests.valid.key).catch(error => {
+				expect(error.message).to.be.a("string").and.equal(errorMessage);
+				done();
+			})
+		})
 	});
 
 	describe("#isValid", () => {

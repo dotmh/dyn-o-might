@@ -373,7 +373,25 @@ describe("Dyn-O-Might", () => {
 			expect(response.status).to.be.false;
 		});
 
-		it("should fire after the delete event");
+		it("should fire after the delete event", async () => {
+			
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(null, mocks.delete.response.valid);
+			});
+
+			const eventValue = mocks.faker.random.word();
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.afterDeleteHook, (event) => {
+				event.foo = eventValue
+				return event;
+			});
+
+			const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+			expect(response.foo).to.be.a("string").and.equal(eventValue);
+		});
 		
 		it("should throw an error when you specifiy an non-existant hook", () => {
 			const hook = Symbol("hook.does.not.exist");

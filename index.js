@@ -8,13 +8,17 @@ module.exports = class DynoMight {
 		this.afterPutHook = Symbol("hook.after.put");
 		this.beforeGetHook = Symbol("hook.before.get");
 		this.afterGetHook = Symbol("hook.after.get");
+		this.beforeDeleteHook = Symbol("hook.before.delete");
+		this.afterDeleteHook = Symbol("hook.after.delete");
 
 		this.hooks = {};
 		this.validHooks = [
 			this.beforePutHook,
 			this.afterPutHook,
 			this.beforeGetHook,
-			this.afterGetHook
+			this.afterGetHook,
+			this.beforeDeleteHook,
+			this.afterDeleteHook
 		];
 	}
 
@@ -69,6 +73,42 @@ module.exports = class DynoMight {
 		});
 	}
 
+	delete(key) {
+		return new Promise((resolve, reject) => {
+			let event = {
+				key,
+				canDelete: true
+			};
+			if (this._hasHandlers(this.beforeDeleteHook)) {
+				event = this._triggerHook(this.beforeDeleteHook, event);
+			}
+
+			if(!event.canDelete) {
+				resolve({
+					status: false,
+					data: null
+				});
+			}
+
+			this.db.delete({
+				TableName: this.tableName,
+				Key: key
+			}, (err, data) => {
+				if (err) {
+					reject(err);
+				} else {
+					let response = {
+						status: true,
+						data
+					};
+
+					response = this._triggerHook(this.afterDeleteHook, response);
+					resolve(response);
+				}
+			})
+		});
+	}
+
 	isValid(payload) {
 		const validation = [];
 
@@ -105,7 +145,7 @@ module.exports = class DynoMight {
 
 	on(hookName, fn) {
 		if (this.validHooks.lastIndexOf(hookName) === -1) {
-			throw new Error(`Hook ${hookName} does not exist`);
+			throw new Error(`Hook ${hookName.toString()} does not exist`);
 		}
 
 		this.hooks[hookName] = this.hooks[hookName] || [];
@@ -182,5 +222,9 @@ module.exports = class DynoMight {
 		}
 
 		return event;
+	}
+
+	_hasHandlers(hookName) {
+		return (hookName in this.hooks && Array.isArray(this.hooks[hookName]) && this.hooks[hookName].length > 0);
 	}
 };

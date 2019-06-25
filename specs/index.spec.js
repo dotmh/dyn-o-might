@@ -27,6 +27,11 @@ describe("Dyn-O-Might", () => {
 				Item: {}
 			});
 		});
+		AWSMock.mock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+			callback(null, {
+				Item: {}
+			});
+		});
 	});
 
 	describe("#construct", () => {
@@ -86,83 +91,6 @@ describe("Dyn-O-Might", () => {
 			dynomight.get(mocks.get.requests.valid.key).catch((error) => {
 				expect(error.message).to.be.a("string").and.equal(errorMessage);
 				done();
-			});
-		});
-	});
-
-	describe("#isValid", () => {
-		it("should validate against a valid payload", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			const result = dynomight.isValid(mocks.get.response.valid);
-
-			expect(result.isValid).to.be.true; //eslint-
-		});
-
-		it("should not validate against an invalid payload", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			const result = dynomight.isValid(mocks.get.response.invalid);
-
-			expect(result.isValid).to.be.false;
-		});
-
-		it("should not validate if a required field is missing", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-			const result = dynomight.isValid(mocks.get.response.missingRequired);
-
-			expect(result.isValid).to.be.false;
-			expect(result.errors).to.be.an("array").and.include("fromCode is required");
-		});
-
-		it("should not validate if the key field is missing", () => {
-			const {definition} = mocks.get;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-			const result = dynomight.isValid(mocks.get.response.missingKeyField);
-
-			expect(result.isValid).to.be.false;
-			expect(result.errors).to.be.an("array").and.includes("Key field from is required");
-		});
-
-		it("should not validate if the fields data is the wrong type", () => {
-			const definition = mocks.get.definitionWithTypes;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-			const result = dynomight.isValid(mocks.get.response.withIncorrectType);
-
-			expect(result.isValid).to.be.false;
-			expect(result.errors).to.be.an("array")
-				.and.includes("to should be string but number found");
-		});
-
-		describe("#isRquired with types", () => {
-			Object.entries(mocks.types).forEach((typeData) => {
-				const [type, data] = typeData;
-
-				it(`should validate type ${type} as required`, () => {
-					const {definition} = data;
-					const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-					const result = dynomight.isValid(data.payload.valid);
-
-					expect(result.isValid).to.be.true;
-				});
-
-				if ("invalid" in data.payload) {
-					it(`shouldn't validate type ${type} as required when its emoty for the type`, () => {
-						const {definition} = data;
-						const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-
-						const result = dynomight.isValid(data.payload.invalid);
-
-						expect(result.isValid).to.be.false;
-						expect(result.errors).to.be.an("array")
-							.and.includes("field is required");
-					});
-				}
 			});
 		});
 	});
@@ -229,6 +157,114 @@ describe("Dyn-O-Might", () => {
 				done();
 			});
 		});
+	});
+
+	describe("#delete", () => {
+		it("should delete the record from DynamoDB", async () => {
+
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(null, mocks.delete.response.valid);
+			});
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+			expect(response.status).to.be.true;
+		});
+
+		it("should reject the promise when AWS returns an error", (done) => {
+			const errorMessage = mocks.faker.random.words(3);
+
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(new Error(errorMessage), null);
+			});
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			dynomight.delete(mocks.delete.requests.valid.key).catch(error => {
+				expect(error.message).to.be.a("string").and.equal(errorMessage);
+				done();
+			})
+		})
+	});
+
+	describe("#isValid", () => {
+			it("should validate against a valid payload", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				const result = dynomight.isValid(mocks.get.response.valid);
+
+				expect(result.isValid).to.be.true; //eslint-
+			});
+
+			it("should not validate against an invalid payload", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				const result = dynomight.isValid(mocks.get.response.invalid);
+
+				expect(result.isValid).to.be.false;
+			});
+
+			it("should not validate if a required field is missing", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				const result = dynomight.isValid(mocks.get.response.missingRequired);
+
+				expect(result.isValid).to.be.false;
+				expect(result.errors).to.be.an("array").and.include("fromCode is required");
+			});
+
+			it("should not validate if the key field is missing", () => {
+				const {definition} = mocks.get;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				const result = dynomight.isValid(mocks.get.response.missingKeyField);
+
+				expect(result.isValid).to.be.false;
+				expect(result.errors).to.be.an("array").and.includes("Key field from is required");
+			});
+
+			it("should not validate if the fields data is the wrong type", () => {
+				const definition = mocks.get.definitionWithTypes;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				const result = dynomight.isValid(mocks.get.response.withIncorrectType);
+
+				expect(result.isValid).to.be.false;
+				expect(result.errors).to.be.an("array")
+					.and.includes("to should be string but number found");
+			});
+
+			describe("#isRquired with types", () => {
+				Object.entries(mocks.types).forEach((typeData) => {
+					const [type, data] = typeData;
+
+					it(`should validate type ${type} as required`, () => {
+						const {definition} = data;
+						const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+						const result = dynomight.isValid(data.payload.valid);
+
+						expect(result.isValid).to.be.true;
+					});
+
+					if ("invalid" in data.payload) {
+						it(`shouldn't validate type ${type} as required when its emoty for the type`, () => {
+							const {definition} = data;
+							const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+							const result = dynomight.isValid(data.payload.invalid);
+
+							expect(result.isValid).to.be.false;
+							expect(result.errors).to.be.an("array")
+								.and.includes("field is required");
+						});
+					}
+				});
+			});
 	});
 
 	describe("Hooks", () => {
@@ -319,6 +355,52 @@ describe("Dyn-O-Might", () => {
 			);
 
 			expect(response[key]).to.be.a("string").and.equal(fake);
+		});
+
+		it("should fire before a delete event", async () => {
+
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(null, mocks.delete.response.valid);
+			});
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			
+			dynomight.on(dynomight.beforeDeleteHook, (event) => event.canDelete = false);
+			
+			const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+			expect(response.status).to.be.false;
+		});
+
+		it("should fire after the delete event", async () => {
+			
+			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+				callback(null, mocks.delete.response.valid);
+			});
+
+			const eventValue = mocks.faker.random.word();
+
+			const {definition} = mocks.delete;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.on(dynomight.afterDeleteHook, (event) => {
+				event.foo = eventValue
+				return event;
+			});
+
+			const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+			expect(response.foo).to.be.a("string").and.equal(eventValue);
+		});
+		
+		it("should throw an error when you specifiy an non-existant hook", () => {
+			const hook = Symbol("hook.does.not.exist");
+			const {definition} = mocks.get;
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+			const fn = () => dynomight.on(hook, () => null);
+
+			expect(fn).to.throw(`Hook ${hook.toString()} does not exist`)
 		});
 	});
 });

@@ -142,6 +142,23 @@ module.exports.types = {
 	}
 };
 
+module.exports.delete = {
+	definition: {
+		key: {
+			isKey: true,
+			reequired: true
+		}
+	},
+	requests: {
+		valid: {
+			key: getRequestsReponseValidKey
+		}
+	},
+	response: {
+		valid: {}
+	}
+}
+
 module.exports.get = {
 	definition: {
 		from: {

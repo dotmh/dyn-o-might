@@ -267,7 +267,6 @@ describe("Dyn-O-Might", () => {
 	});
 
 	describe("Validation Hook", () => {
-
 		it("should populate the event with the payload", (done) => {
 			const mockData = mocks.get.response.valid;
 			const {definition} = mocks.get;
@@ -325,12 +324,12 @@ describe("Dyn-O-Might", () => {
 		it("should be able to prevent the default validation rules", () => {
 			const {definition} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			
+
 			dynomight.on(dynomight.validationHook, (event) => {
 				event.preventDefault = true;
 				return event;
 			});
-			
+
 			const result = dynomight.isValid(mocks.get.response.invalid);
 
 			expect(result.isValid).to.be.true;

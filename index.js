@@ -44,9 +44,12 @@ module.exports = class DynoMight {
 				if (err) {
 					reject(err);
 				} else {
-					let mapped = result.map((item) => this._mapFields(item));
+					let mapped = result.Items.map((item) => this._mapFields(item));
 					mapped = this._triggerHook(this.afterScanHook, mapped);
-					resolve(mapped);
+					resolve({
+						items: mapped,
+						count: result.Count
+					});
 				}
 			});
 		});

@@ -439,18 +439,34 @@ describe("Dyn-O-Might", () => {
 
 				dynomight.scan();
 			});
-			it("should fire after a scan event");
+
+			it("should fire after a scan event", async () => {
+				const add = mocks.faker.random.word();
+				const {definition} = mocks.get;
+				const mockResponse = mocks.scan.response.valid;
+
+				AWSMock.remock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+					callback(null, mockResponse);
+				});
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.afterScanHook, (params) => {
+					params.to = add;
+					return params;
+				});
+
+				const response = await dynomight.scan();
+				expect(response.to).to.equal(add);
+			});
 		});
 
 		describe("get", () => {
 			it("should fire before a get event", (done) => {
 				const key = mocks.faker.random.word();
-
+				const mockResponse = mocks.scan.response.valid;
 				AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
 					expect(params.Key).to.be.a("string").and.equal(key);
-					callback(null, {
-						Item: null
-					});
+					callback(null, mockResponse);
 					done();
 				});
 

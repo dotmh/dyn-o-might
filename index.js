@@ -6,10 +6,15 @@ module.exports = class DynoMight {
 
 		this.beforePutHook = Symbol("hook.before.put");
 		this.afterPutHook = Symbol("hook.after.put");
+
 		this.beforeGetHook = Symbol("hook.before.get");
 		this.afterGetHook = Symbol("hook.after.get");
+
 		this.beforeDeleteHook = Symbol("hook.before.delete");
 		this.afterDeleteHook = Symbol("hook.after.delete");
+
+		this.beforeScanHook = Symbol("hook.before.scan");
+		this.afterScanHook = Symbol("hook.after.scan");
 
 		this.validationHook = Symbol("hook.validation");
 
@@ -21,8 +26,30 @@ module.exports = class DynoMight {
 			this.afterGetHook,
 			this.beforeDeleteHook,
 			this.afterDeleteHook,
+			this.beforeScanHook,
+			this.afterScanHook,
 			this.validationHook
 		];
+	}
+
+	scan(_params = {}) {
+		return new Promise((resolve, reject) => {
+			let params = {
+				TableName: this.tableName,
+				..._params
+			};
+
+			params = this._triggerHook(this.beforeScanHook, params);
+			this.db.scan(params, (err, result) => {
+				if (err) {
+					reject(err);
+				} else {
+					let mapped = result.map((item) => this._mapFields(item));
+					mapped = this._triggerHook(this.afterScanHook, mapped);
+					resolve(mapped);
+				}
+			});
+		});
 	}
 
 	get(key) {

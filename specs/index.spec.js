@@ -419,7 +419,26 @@ describe("Dyn-O-Might", () => {
 
 	describe("Hooks", () => {
 		describe("scan", () => {
-			it("should fire before a scan event");
+			it("should fire before a scan event", (done) => {
+				const test = mocks.faker.random.words(4);
+				AWSMock.remock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+					expect(params.test).to.be.a("string").and.equal(test);
+					callback(null, mocks.scan.response.valid);
+					done();
+				});
+
+				const {
+					definition
+				} = mocks.scan;
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.beforeScanHook, (params) => {
+					params.test = test;
+					return params;
+				});
+
+				dynomight.scan();
+			});
 			it("should fire after a scan event");
 		});
 

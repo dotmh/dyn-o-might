@@ -54,7 +54,21 @@ describe("Dyn-O-Might", () => {
 	});
 
 	describe("#scan", () => {
-		it("should return all the data for a table");
+		it("should return all the data for a table", async () => {
+			const mockResponse = mocks.scan.response.valid;
+
+			AWSMock.remock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+				callback(null, mockResponse);
+			});
+
+			const {definition} = mocks.scan;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			const response = await dynomight.scan();
+
+			expect(response.items.length).to.equal(mockResponse.Count);
+			expect(response.items).to.deep.equal(mockResponse.Items);
+		});
 		it("should reject the promise when AWS returns an error");
 	});
 

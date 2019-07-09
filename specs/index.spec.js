@@ -32,6 +32,11 @@ describe("Dyn-O-Might", () => {
 				Item: {}
 			});
 		});
+		AWSMock.mock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+			callback(null, {
+				Item: {}
+			});
+		});
 	});
 
 	describe("#construct", () => {

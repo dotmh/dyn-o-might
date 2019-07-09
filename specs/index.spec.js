@@ -389,7 +389,6 @@ describe("Dyn-O-Might", () => {
 	});
 
 	describe("Hooks", () => {
-
 		describe("scan", () => {
 			it("should fire before a scan event");
 			it("should fire after a scan event");

@@ -69,7 +69,22 @@ describe("Dyn-O-Might", () => {
 			expect(response.items.length).to.equal(mockResponse.Count);
 			expect(response.items).to.deep.equal(mockResponse.Items);
 		});
-		it("should reject the promise when AWS returns an error");
+
+		it("should reject the promise when AWS returns an error", (done) => {
+			const errorMessage = "Simulated Error";
+
+			AWSMock.remock(DynamoDB.DocumentClient, "scan", (_params, callback) => {
+				callback(new Error(errorMessage), null);
+			});
+
+			const {definition} = mocks.scan;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.scan().catch((error) => {
+				expect(error.message).to.be.a("string").and.equal(errorMessage);
+				done();
+			});
+		});
 	});
 
 	describe("#get", () => {

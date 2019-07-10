@@ -159,6 +159,35 @@ module.exports.delete = {
 	}
 };
 
+module.exports.scan = (() => {
+	const count = faker.random.number(10);
+
+	return {
+		definition: {
+			from: {
+				isKey: true,
+				required: true
+			},
+			to: true,
+			toCode: true,
+			fromCode: true
+		},
+		response: {
+			valid: {
+				Items: (new Array(count)).fill(null).map(() => {
+					return {
+						from: getRequestsReponseValidKey,
+						to: faker.lorem.sentence(),
+						toCode: faker.address.countryCode(),
+						fromCode: faker.address.countryCode()
+					};
+				}),
+				Count: count
+			}
+		}
+	};
+})();
+
 module.exports.get = {
 	definition: {
 		from: {

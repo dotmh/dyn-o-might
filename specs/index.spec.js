@@ -32,6 +32,11 @@ describe("Dyn-O-Might", () => {
 				Item: {}
 			});
 		});
+		AWSMock.mock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+			callback(null, {
+				Item: {}
+			});
+		});
 	});
 
 	describe("#construct", () => {
@@ -48,6 +53,40 @@ describe("Dyn-O-Might", () => {
 		});
 	});
 
+	describe("#scan", () => {
+		it("should return all the data for a table", async () => {
+			const mockResponse = mocks.scan.response.valid;
+
+			AWSMock.remock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+				callback(null, mockResponse);
+			});
+
+			const {definition} = mocks.scan;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			const response = await dynomight.scan();
+
+			expect(response.items.length).to.equal(mockResponse.Count);
+			expect(response.items).to.deep.equal(mockResponse.Items);
+		});
+
+		it("should reject the promise when AWS returns an error", (done) => {
+			const errorMessage = "Simulated Error";
+
+			AWSMock.remock(DynamoDB.DocumentClient, "scan", (_params, callback) => {
+				callback(new Error(errorMessage), null);
+			});
+
+			const {definition} = mocks.scan;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			dynomight.scan().catch((error) => {
+				expect(error.message).to.be.a("string").and.equal(errorMessage);
+				done();
+			});
+		});
+	});
+
 	describe("#get", () => {
 		it("should get data from DynamoDB", async () => {
 			const mockResponse = mocks.get.response.valid;
@@ -57,7 +96,9 @@ describe("Dyn-O-Might", () => {
 					Item: mockResponse
 				});
 			});
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const response = await dynomight.get(mocks.get.requests.valid.key);
@@ -71,7 +112,9 @@ describe("Dyn-O-Might", () => {
 				callback(null, mockResponse);
 			});
 
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const response = await dynomight.get(mocks.get.requests.valid.key);
@@ -85,7 +128,9 @@ describe("Dyn-O-Might", () => {
 				callback(new Error(errorMessage), null);
 			});
 
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 			dynomight.get(mocks.get.requests.valid.key).catch((error) => {
@@ -98,7 +143,9 @@ describe("Dyn-O-Might", () => {
 	describe("#put", () => {
 		it("should store data in dynamo db", async () => {
 			const mockResponse = {
-				...{from: mocks.put.requests.valid.key},
+				...{
+					from: mocks.put.requests.valid.key
+				},
 				...mocks.put.requests.valid.payload
 			};
 
@@ -106,7 +153,9 @@ describe("Dyn-O-Might", () => {
 				callback(null, mockResponse);
 			});
 
-			const {definition} = mocks.put;
+			const {
+				definition
+			} = mocks.put;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const response = await dynomight.put(
@@ -119,7 +168,9 @@ describe("Dyn-O-Might", () => {
 
 		it("should reject on invalid data in dynamo db", (done) => {
 			const mockResponse = {
-				...{from: mocks.put.requests.valid.key},
+				...{
+					from: mocks.put.requests.valid.key
+				},
 				...mocks.put.requests.valid.payload
 			};
 
@@ -127,7 +178,9 @@ describe("Dyn-O-Might", () => {
 				callback(null, mockResponse);
 			});
 
-			const {definition} = mocks.put;
+			const {
+				definition
+			} = mocks.put;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			dynomight.put(
@@ -146,7 +199,9 @@ describe("Dyn-O-Might", () => {
 				callback(new Error(errorMessage), null);
 			});
 
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 			dynomight.put(
@@ -165,7 +220,9 @@ describe("Dyn-O-Might", () => {
 				callback(null, mocks.delete.response.valid);
 			});
 
-			const {definition} = mocks.delete;
+			const {
+				definition
+			} = mocks.delete;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 			const response = await dynomight.delete(mocks.delete.requests.valid.key);
 
@@ -179,7 +236,9 @@ describe("Dyn-O-Might", () => {
 				callback(new Error(errorMessage), null);
 			});
 
-			const {definition} = mocks.delete;
+			const {
+				definition
+			} = mocks.delete;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			dynomight.delete(mocks.delete.requests.valid.key).catch((error) => {
@@ -191,7 +250,9 @@ describe("Dyn-O-Might", () => {
 
 	describe("#isValid", () => {
 		it("should validate against a valid payload", () => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 			const result = dynomight.isValid(mocks.get.response.valid);
 
@@ -199,7 +260,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should not validate against an invalid payload", () => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 			const result = dynomight.isValid(mocks.get.response.invalid);
 
@@ -207,7 +270,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should not validate if a required field is missing", () => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const result = dynomight.isValid(mocks.get.response.missingRequired);
@@ -217,7 +282,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should not validate if the key field is missing", () => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const result = dynomight.isValid(mocks.get.response.missingKeyField);
@@ -242,7 +309,9 @@ describe("Dyn-O-Might", () => {
 				const [type, data] = typeData;
 
 				it(`should validate type ${type} as required`, () => {
-					const {definition} = data;
+					const {
+						definition
+					} = data;
 					const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 					const result = dynomight.isValid(data.payload.valid);
@@ -252,7 +321,9 @@ describe("Dyn-O-Might", () => {
 
 				if ("invalid" in data.payload) {
 					it(`shouldn't validate type ${type} as required when its emoty for the type`, () => {
-						const {definition} = data;
+						const {
+							definition
+						} = data;
 						const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 						const result = dynomight.isValid(data.payload.invalid);
@@ -269,7 +340,9 @@ describe("Dyn-O-Might", () => {
 	describe("Validation Hook", () => {
 		it("should populate the event with the payload", (done) => {
 			const mockData = mocks.get.response.valid;
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			dynomight.on(dynomight.validationHook, (event) => {
@@ -281,7 +354,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should populate the event with the defintion", (done) => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			dynomight.on(dynomight.validationHook, (event) => {
@@ -293,7 +368,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should populate the event with the defintion", (done) => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			dynomight.on(dynomight.validationHook, (event) => {
@@ -305,7 +382,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should validate against it own rules and report back", () => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const fakeError = mocks.faker.random.words(4);
@@ -322,7 +401,9 @@ describe("Dyn-O-Might", () => {
 		});
 
 		it("should be able to prevent the default validation rules", () => {
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			dynomight.on(dynomight.validationHook, (event) => {
@@ -337,135 +418,199 @@ describe("Dyn-O-Might", () => {
 	});
 
 	describe("Hooks", () => {
-		it("should fire before a get event", (done) => {
-			const key = mocks.faker.random.word();
-
-			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
-				expect(params.Key).to.be.a("string").and.equal(key);
-				callback(null, {Item: null});
-				done();
-			});
-
-			const {definition} = mocks.get;
-
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			dynomight.on(dynomight.beforeGetHook, (params) => {
-				params.Key = key;
-				return params;
-			});
-
-			dynomight.get(mocks.get.requests.valid.key);
-		});
-
-		it("should fire after a get event", async () => {
-			const add = mocks.faker.random.word();
-			const {definition} = mocks.get;
-			const mockResponse = mocks.get.response.valid;
-
-			AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
-				callback(null, {
-					Item: mockResponse
+		describe("scan", () => {
+			it("should fire before a scan event", (done) => {
+				const test = mocks.faker.random.words(4);
+				AWSMock.remock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+					expect(params.test).to.be.a("string").and.equal(test);
+					callback(null, mocks.scan.response.valid);
+					done();
 				});
+
+				const {
+					definition
+				} = mocks.scan;
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.beforeScanHook, (params) => {
+					params.test = test;
+					return params;
+				});
+
+				dynomight.scan();
 			});
 
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			dynomight.on(dynomight.afterGetHook, (params) => {
-				params.to = add;
-				return params;
-			});
+			it("should fire after a scan event", async () => {
+				const add = mocks.faker.random.word();
+				const {definition} = mocks.get;
+				const mockResponse = mocks.scan.response.valid;
 
-			const response = await dynomight.get(mocks.get.requests.valid.key);
-			expect(response.to).to.equal(add);
+				AWSMock.remock(DynamoDB.DocumentClient, "scan", (params, callback) => {
+					callback(null, mockResponse);
+				});
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.afterScanHook, (params) => {
+					params.to = add;
+					return params;
+				});
+
+				const response = await dynomight.scan();
+				expect(response.to).to.equal(add);
+			});
 		});
 
-		it("should fire before a put event", async () => {
-			const {definition} = mocks.put;
-			const fake = mocks.faker.random.word();
+		describe("get", () => {
+			it("should fire before a get event", (done) => {
+				const key = mocks.faker.random.word();
+				const mockResponse = mocks.scan.response.valid;
+				AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
+					expect(params.Key).to.be.a("string").and.equal(key);
+					callback(null, mockResponse);
+					done();
+				});
 
-			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
-				expect(params.Item.to).to.be.a("string").and.equal(fake);
-				callback(null, params.Item);
+				const {
+					definition
+				} = mocks.get;
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.beforeGetHook, (params) => {
+					params.Key = key;
+					return params;
+				});
+
+				dynomight.get(mocks.get.requests.valid.key);
 			});
 
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			dynomight.on(dynomight.beforePutHook, (params) => {
-				params.to = fake;
-				return params;
-			});
+			it("should fire after a get event", async () => {
+				const add = mocks.faker.random.word();
+				const {
+					definition
+				} = mocks.get;
+				const mockResponse = mocks.get.response.valid;
 
-			await dynomight.put(
-				mocks.put.requests.valid.key,
-				mocks.put.requests.valid.payload
-			);
+				AWSMock.remock(DynamoDB.DocumentClient, "get", (params, callback) => {
+					callback(null, {
+						Item: mockResponse
+					});
+				});
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.afterGetHook, (params) => {
+					params.to = add;
+					return params;
+				});
+
+				const response = await dynomight.get(mocks.get.requests.valid.key);
+				expect(response.to).to.equal(add);
+			});
 		});
 
-		it("should fire after a put event", async () => {
-			const {definition} = mocks.put;
-			const fake = mocks.faker.random.word();
-			const key = "from";
-			const mockResponse = {
-				...{from: mocks.put.requests.valid.key},
-				...mocks.put.requests.valid.payload
-			};
+		describe("put", () => {
+			it("should fire before a put event", async () => {
+				const {
+					definition
+				} = mocks.put;
+				const fake = mocks.faker.random.word();
 
-			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
-				callback(null, mockResponse);
+				AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
+					expect(params.Item.to).to.be.a("string").and.equal(fake);
+					callback(null, params.Item);
+				});
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.beforePutHook, (params) => {
+					params.to = fake;
+					return params;
+				});
+
+				await dynomight.put(
+					mocks.put.requests.valid.key,
+					mocks.put.requests.valid.payload
+				);
 			});
 
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			dynomight.on(dynomight.afterPutHook, (params) => {
-				params[key] = fake;
-				return params;
+			it("should fire after a put event", async () => {
+				const {
+					definition
+				} = mocks.put;
+				const fake = mocks.faker.random.word();
+				const key = "from";
+				const mockResponse = {
+					...{
+						from: mocks.put.requests.valid.key
+					},
+					...mocks.put.requests.valid.payload
+				};
+
+				AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
+					callback(null, mockResponse);
+				});
+
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.afterPutHook, (params) => {
+					params[key] = fake;
+					return params;
+				});
+
+				const response = await dynomight.put(
+					mocks.put.requests.valid.key,
+					mocks.put.requests.valid.payload
+				);
+
+				expect(response[key]).to.be.a("string").and.equal(fake);
 			});
-
-			const response = await dynomight.put(
-				mocks.put.requests.valid.key,
-				mocks.put.requests.valid.payload
-			);
-
-			expect(response[key]).to.be.a("string").and.equal(fake);
 		});
 
-		it("should fire before a delete event", async () => {
-			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
-				callback(null, mocks.delete.response.valid);
+		describe("delete", () => {
+			it("should fire before a delete event", async () => {
+				AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+					callback(null, mocks.delete.response.valid);
+				});
+
+				const {
+					definition
+				} = mocks.delete;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+
+				dynomight.on(dynomight.beforeDeleteHook, (event) => {
+					event.canDelete = false;
+					return event;
+				});
+
+				const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+				expect(response.status).to.be.false;
 			});
 
-			const {definition} = mocks.delete;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+			it("should fire after the delete event", async () => {
+				AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
+					callback(null, mocks.delete.response.valid);
+				});
 
-			dynomight.on(dynomight.beforeDeleteHook, (event) => {
-				event.canDelete = false;
-				return event;
+				const eventValue = mocks.faker.random.word();
+
+				const {
+					definition
+				} = mocks.delete;
+				const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
+				dynomight.on(dynomight.afterDeleteHook, (event) => {
+					event.foo = eventValue;
+					return event;
+				});
+
+				const response = await dynomight.delete(mocks.delete.requests.valid.key);
+
+				expect(response.foo).to.be.a("string").and.equal(eventValue);
 			});
-
-			const response = await dynomight.delete(mocks.delete.requests.valid.key);
-
-			expect(response.status).to.be.false;
-		});
-
-		it("should fire after the delete event", async () => {
-			AWSMock.remock(DynamoDB.DocumentClient, "delete", (params, callback) => {
-				callback(null, mocks.delete.response.valid);
-			});
-
-			const eventValue = mocks.faker.random.word();
-
-			const {definition} = mocks.delete;
-			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
-			dynomight.on(dynomight.afterDeleteHook, (event) => {
-				event.foo = eventValue;
-				return event;
-			});
-
-			const response = await dynomight.delete(mocks.delete.requests.valid.key);
-
-			expect(response.foo).to.be.a("string").and.equal(eventValue);
 		});
 
 		it("should throw an error when you specifiy an non-existant hook", () => {
 			const hook = Symbol("hook.does.not.exist");
-			const {definition} = mocks.get;
+			const {
+				definition
+			} = mocks.get;
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definition);
 
 			const fn = () => dynomight.on(hook, () => null);

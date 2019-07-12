@@ -126,7 +126,9 @@ module.exports = class DynoMight {
 
 			this.db.delete({
 				TableName: this.tableName,
-				Key: key
+				Key: {
+					[this._keyField()]: key
+				}
 			}, (err, data) => {
 				if (err) {
 					reject(err);

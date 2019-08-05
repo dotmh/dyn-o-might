@@ -85,6 +85,8 @@ module.exports = class DynoMight {
 				[this._keyField()]: key
 			}, ...payload};
 
+			console.log(Item);
+
 			Item = this._triggerHook(this.beforePutHook, Item);
 			Item = this._setDefaults(Item);
 
@@ -95,14 +97,20 @@ module.exports = class DynoMight {
 				return null;
 			}
 
+			console.log(Item);
+
 			this.db.put({
 				TableName: this.tableName,
 				Item
 			}, (err) => {
 				if (err) {
+					console.error(err);
 					reject(err);
 				} else {
 					Item = this._triggerHook(this.afterPutHook, Item);
+
+					console.log('==> ', Item);
+
 					resolve(Item);
 				}
 			});

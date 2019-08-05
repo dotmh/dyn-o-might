@@ -217,14 +217,15 @@ describe("Dyn-O-Might", () => {
 			const {definitionWithDefault} = mocks.put;
 
 			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
-				expect(params.Items.to).to.deep.equal(definitionWithDefault.to.default);
+				expect(params.Item.to).to.deep.equal(definitionWithDefault.to.default);
+				done();
 			});
 
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definitionWithDefault);
 			dynomight.put(
 				mocks.put.requests.withDefault.key,
 				mocks.put.requests.withDefault.payload
-			).then(() => done());
+			).then(() => done()).catch((err) => console.error(err));
 		})
 	});
 

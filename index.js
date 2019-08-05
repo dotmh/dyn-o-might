@@ -86,6 +86,8 @@ module.exports = class DynoMight {
 			}, ...payload};
 
 			Item = this._triggerHook(this.beforePutHook, Item);
+			Item = this._setDefaults(Item);
+
 			const validation = this.isValid(Item);
 
 			if (!validation.isValid) {
@@ -203,6 +205,18 @@ module.exports = class DynoMight {
 
 		this.hooks[hookName] = this.hooks[hookName] || [];
 		this.hooks[hookName].push(fn);
+	}
+
+	_setDefaults(data) {
+		this._definitionAsArray().forEach(([field, fieldData]) => {
+			if('default' in fieldData) {
+				if(field in data && this._isRequired(data[field]) === false) {
+					data[field] = fieldData['default'];
+				}
+			}
+		});
+
+		return data;
 	}
 
 	_test(result, message) {

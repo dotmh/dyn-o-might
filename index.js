@@ -1,5 +1,11 @@
+let coreDebug = () => null;
+try {
+	coreDebug = require("debug")("dynomight");
+} catch (e) {}
+
 module.exports = class DynoMight {
 	constructor(db, tableName, definition) {
+		coreDebug("Booting ", tableName);
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;

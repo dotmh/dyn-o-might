@@ -241,7 +241,25 @@ describe("Dyn-O-Might", () => {
 				mocks.put.requests.valid.key,
 				mocks.put.requests.valid.payload
 			).then(() => done()).catch((err) => console.error(err));
-		})
+		});
+
+		it("should set the default value before attempting validation", (done) => {
+			const {definitionWithDefault} = mocks.put;
+
+			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+				expect(params.Item.to).to.deep.equal(mocks.put.requests.valid.payload.to);
+				done();
+			});
+
+			const payload = mocks.put.requests.valid.payload;
+			delete payload.from;
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definitionWithDefault);
+			dynomight.put(
+				mocks.put.requests.valid.key,
+				payload
+			).then(() => done()).catch((err) => console.error(err));
+		});
 	});
 
 	describe("#delete", () => {

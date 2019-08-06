@@ -85,8 +85,8 @@ module.exports = class DynoMight {
 				[this._keyField()]: key
 			}, ...payload};
 
-			Item = this._triggerHook(this.beforePutHook, Item);
 			Item = this._setDefaults(Item);
+			Item = this._triggerHook(this.beforePutHook, Item);
 
 			const validation = this.isValid(Item);
 

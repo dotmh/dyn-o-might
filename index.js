@@ -212,7 +212,7 @@ module.exports = class DynoMight {
 			.filter(([,fieldData]) => typeof(fieldData) === "object")
 			.forEach(([field, fieldData]) => {
 				if('default' in fieldData) {
-					if(field in data && this._isRequired(data[field]) === false) {
+					if((!field in data) || (field in data && this._isRequired(data[field]) === false)) {
 						data[field] = fieldData['default'];
 					}
 				}

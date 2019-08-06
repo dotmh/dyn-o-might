@@ -1,6 +1,8 @@
 let coreDebug = () => null;
+let verboseDebug = () => null;
 try {
-	coreDebug = require("debug")("dynomight");
+	coreDebug = require("debug")("dynomight:core");
+	verboseDebug = require("debug")("dynomight:verbose");
 } catch (e) {}
 
 module.exports = class DynoMight {
@@ -39,6 +41,7 @@ module.exports = class DynoMight {
 	}
 
 	scan(_params = {}) {
+		coreDebug('Running Sync with %O', _params);
 		return new Promise((resolve, reject) => {
 			let params = {
 				TableName: this.tableName,
@@ -48,6 +51,7 @@ module.exports = class DynoMight {
 			params = this._triggerHook(this.beforeScanHook, params);
 			this.db.scan(params, (err, result) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else {
 					let response = {
@@ -63,6 +67,7 @@ module.exports = class DynoMight {
 	}
 
 	get(key) {
+		coreDebug('Running Get with %s', key);
 		return new Promise((resolve, reject) => {
 			let params = {
 				TableName: this.tableName,
@@ -73,6 +78,7 @@ module.exports = class DynoMight {
 			params = this._triggerHook(this.beforeGetHook, params);
 			this.db.get(params, (err, result) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else if (result.Item) {
 					let mapped = this._mapFields(result.Item);
@@ -86,6 +92,9 @@ module.exports = class DynoMight {
 	}
 
 	put(key, payload) {
+		coreDebug("Running put with key %s", key);
+		verboseDebug('and parameters %O', payload);
+
 		return new Promise((resolve, reject) => {
 			let Item = {...{
 				[this._keyField()]: key
@@ -98,6 +107,7 @@ module.exports = class DynoMight {
 
 			if (!validation.isValid) {
 				reject(new Error(validation.errors.join(", ")));
+				coreDebug('ERROR: %s', validation.errors.join(", "));
 				return null;
 			}
 
@@ -106,6 +116,7 @@ module.exports = class DynoMight {
 				Item
 			}, (err) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else {
 					Item = this._triggerHook(this.afterPutHook, Item);
@@ -116,6 +127,7 @@ module.exports = class DynoMight {
 	}
 
 	delete(key) {
+		coreDebug('Running Delete with %s', key);
 		return new Promise((resolve, reject) => {
 			let event = {
 				key,
@@ -139,6 +151,7 @@ module.exports = class DynoMight {
 				}
 			}, (err, data) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else {
 					let response = {

@@ -265,6 +265,18 @@ module.exports.put = {
 		toCode: true,
 		fromCode: true
 	},
+	definitionWithDefault: {
+		from: {
+			isKey: true,
+			required: true
+		},
+		to: {
+			required: true,
+			default: faker.random.word()
+		},
+		toCode: true,
+		fromCode: true
+	},
 	requests: {
 		valid: {
 			key: faker.random.word(),
@@ -278,6 +290,14 @@ module.exports.put = {
 			key: faker.random.word(),
 			payload: {
 				to: faker.random.word()
+			}
+		},
+		withDefault: {
+			key: faker.random.word(),
+			payload: {
+				to: '',
+				toCode: faker.address.countryCode(),
+				fromCode: faker.address.countryCode()
 			}
 		}
 	}

@@ -212,6 +212,36 @@ describe("Dyn-O-Might", () => {
 				done();
 			});
 		});
+
+		it("should set up the default values for fields that have them but no value", (done) => {
+			const {definitionWithDefault} = mocks.put;
+
+			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+				expect(params.Item.to).to.deep.equal(definitionWithDefault.to.default);
+				done();
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definitionWithDefault);
+			dynomight.put(
+				mocks.put.requests.withDefault.key,
+				mocks.put.requests.withDefault.payload
+			).then(() => done()).catch((err) => console.error(err));
+		});
+
+		it("should not change the value of a field that has a default value if the field is not empty", (done) => {
+			const {definitionWithDefault} = mocks.put;
+
+			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+				expect(params.Item.to).to.deep.equal(mocks.put.requests.valid.payload.to);
+				done();
+			});
+
+			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definitionWithDefault);
+			dynomight.put(
+				mocks.put.requests.valid.key,
+				mocks.put.requests.valid.payload
+			).then(() => done()).catch((err) => console.error(err));
+		})
 	});
 
 	describe("#delete", () => {

@@ -21,6 +21,9 @@
     "aws-sdk": "^2.419.0"
   },
   "dependencies": {},
+  "optionalDependencies": {
+    "debug": "^4.1.1"
+  },
   "xo": {
     "rules": {
       "quotes": [
@@ -41,6 +44,7 @@
     "aws-sdk-mock": "^4.5.0",
     "chai": "^4.2.0",
     "codacy-coverage": "^3.4.0",
+    "debug": "^4.1.1",
     "faker": "^4.1.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",

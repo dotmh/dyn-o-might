@@ -1,5 +1,18 @@
+const debug = require("debug");
+
+let coreDebug = () => null;
+let verboseDebug = () => null;
+let hookDebug = () => null;
+
+try {
+	coreDebug = debug("dynomight:core");
+	verboseDebug = debug("dynomight:verbose");
+	hookDebug = debug("dynomight:hook");
+} catch (e) {}
+
 module.exports = class DynoMight {
 	constructor(db, tableName, definition) {
+		coreDebug("Booting Dyn-O-Might using table: %s", tableName);
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;
@@ -33,6 +46,7 @@ module.exports = class DynoMight {
 	}
 
 	scan(_params = {}) {
+		coreDebug('Running Sync with %O', _params);
 		return new Promise((resolve, reject) => {
 			let params = {
 				TableName: this.tableName,
@@ -42,6 +56,7 @@ module.exports = class DynoMight {
 			params = this._triggerHook(this.beforeScanHook, params);
 			this.db.scan(params, (err, result) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else {
 					let response = {
@@ -57,6 +72,7 @@ module.exports = class DynoMight {
 	}
 
 	get(key) {
+		coreDebug('Running Get with %s', key);
 		return new Promise((resolve, reject) => {
 			let params = {
 				TableName: this.tableName,
@@ -67,6 +83,7 @@ module.exports = class DynoMight {
 			params = this._triggerHook(this.beforeGetHook, params);
 			this.db.get(params, (err, result) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else if (result.Item) {
 					let mapped = this._mapFields(result.Item);
@@ -80,26 +97,35 @@ module.exports = class DynoMight {
 	}
 
 	put(key, payload) {
+		coreDebug("Running put with key %s", key);
+		verboseDebug('and parameters %O', payload);
+
 		return new Promise((resolve, reject) => {
 			let Item = {...{
 				[this._keyField()]: key
 			}, ...payload};
 
 			Item = this._setDefaults(Item);
+
+			verboseDebug('After back filling defaults %O', Item);
+
 			Item = this._triggerHook(this.beforePutHook, Item);
 
 			const validation = this.isValid(Item);
 
 			if (!validation.isValid) {
 				reject(new Error(validation.errors.join(", ")));
+				coreDebug('ERROR: %s', validation.errors.join(", "));
 				return null;
 			}
 
+			verboseDebug('writing to table: %s , Item: %O', this.tableName, Item);
 			this.db.put({
 				TableName: this.tableName,
 				Item
 			}, (err) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else {
 					Item = this._triggerHook(this.afterPutHook, Item);
@@ -110,6 +136,7 @@ module.exports = class DynoMight {
 	}
 
 	delete(key) {
+		coreDebug('Running Delete with %s', key);
 		return new Promise((resolve, reject) => {
 			let event = {
 				key,
@@ -133,6 +160,7 @@ module.exports = class DynoMight {
 				}
 			}, (err, data) => {
 				if (err) {
+					coreDebug('ERROR: %s', err.message);
 					reject(err);
 				} else {
 					let response = {
@@ -285,6 +313,7 @@ module.exports = class DynoMight {
 
 	_triggerHook(hookName, event) {
 		if (hookName in this.hooks) {
+			hookDebug("Running hook %s with event %O", hookName, event);
 			this.hooks[hookName].forEach((hook) => {
 				event = hook.call(this, event);
 			});

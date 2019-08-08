@@ -1,13 +1,18 @@
+const debug = require("debug");
+
 let coreDebug = () => null;
 let verboseDebug = () => null;
+let hookDebug = () => null;
+
 try {
-	coreDebug = require("debug")("dynomight:core");
-	verboseDebug = require("debug")("dynomight:verbose");
+	coreDebug = debug("dynomight:core");
+	verboseDebug = debug("dynomight:verbose");
+	hookDebug = debug("dynomight:hook");
 } catch (e) {}
 
 module.exports = class DynoMight {
 	constructor(db, tableName, definition) {
-		coreDebug("Booting ", tableName);
+		coreDebug("Booting Dyn-O-Might using table: %s", tableName);
 		this.db = db;
 		this.tableName = tableName;
 		this.definition = definition;
@@ -101,6 +106,9 @@ module.exports = class DynoMight {
 			}, ...payload};
 
 			Item = this._setDefaults(Item);
+
+			verboseDebug('After back filling defaults %O', Item);
+
 			Item = this._triggerHook(this.beforePutHook, Item);
 
 			const validation = this.isValid(Item);
@@ -111,6 +119,7 @@ module.exports = class DynoMight {
 				return null;
 			}
 
+			verboseDebug('writing to table: %s , Item: %O', this.tableName, Item);
 			this.db.put({
 				TableName: this.tableName,
 				Item
@@ -304,6 +313,7 @@ module.exports = class DynoMight {
 
 	_triggerHook(hookName, event) {
 		if (hookName in this.hooks) {
+			hookDebug("Running hook %s with event %O", hookName, event);
 			this.hooks[hookName].forEach((hook) => {
 				event = hook.call(this, event);
 			});

@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npx nyc mocha --recursive specs/*.spec.js --exit",
-    "test:coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage"
-  },
+    "test:coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage",
+	"lint": "npx xo"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dotmh/dynomight.git"
@@ -25,6 +26,10 @@
     "debug": "^4.1.1"
   },
   "xo": {
+	"ignores": [
+		"docs",
+		"specs"
+	],
     "rules": {
       "quotes": [
         "error",

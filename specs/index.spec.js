@@ -216,7 +216,7 @@ describe("Dyn-O-Might", () => {
 		it("should set up the default values for fields that have them but no value", (done) => {
 			const {definitionWithDefault} = mocks.put;
 
-			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
 				expect(params.Item.to).to.deep.equal(definitionWithDefault.to.default);
 				done();
 			});
@@ -225,13 +225,13 @@ describe("Dyn-O-Might", () => {
 			dynomight.put(
 				mocks.put.requests.withDefault.key,
 				mocks.put.requests.withDefault.payload
-			).then(() => done()).catch((err) => console.error(err));
+			).then(() => done()).catch((error) => console.error(err));
 		});
 
 		it("should not change the value of a field that has a default value if the field is not empty", (done) => {
 			const {definitionWithDefault} = mocks.put;
 
-			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
 				expect(params.Item.to).to.deep.equal(mocks.put.requests.valid.payload.to);
 				done();
 			});
@@ -240,25 +240,25 @@ describe("Dyn-O-Might", () => {
 			dynomight.put(
 				mocks.put.requests.valid.key,
 				mocks.put.requests.valid.payload
-			).then(() => done()).catch((err) => console.error(err));
+			).then(() => done()).catch((error) => console.error(err));
 		});
 
 		it("should set the default value before attempting validation", (done) => {
 			const {definitionWithDefault} = mocks.put;
 
-			AWSMock.remock(DynamoDB.DocumentClient, 'put', (params, callback) => {
+			AWSMock.remock(DynamoDB.DocumentClient, "put", (params, callback) => {
 				expect(params.Item.to).to.deep.equal(mocks.put.requests.valid.payload.to);
 				done();
 			});
 
-			const payload = mocks.put.requests.valid.payload;
+			const {payload} = mocks.put.requests.valid;
 			delete payload.from;
 
 			const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), TableName, definitionWithDefault);
 			dynomight.put(
 				mocks.put.requests.valid.key,
 				payload
-			).then(() => done()).catch((err) => console.error(err));
+			).then(() => done()).catch((error) => console.error(err));
 		});
 	});
 

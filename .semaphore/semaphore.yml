@@ -1,0 +1,58 @@
+version: v1.0
+name: Build
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Dependancies
+    task:
+      jobs:
+        - name: Dependancies
+          commands:
+            - cache restore
+            - npm ci
+            - cache store
+      prologue:
+        commands:
+          - checkout
+          - sem-version node 10.13.0
+  - name: Test
+    task:
+      secrets:
+        - name: codacy
+      jobs:
+        - name: Test
+          commands:
+            - npm run test:coverage
+      prologue:
+        commands:
+          - checkout
+          - sem-version node 10.13.0
+          - cache restore
+  - name: Lint
+    task:
+      jobs:
+        - name: Lint
+          commands:
+            - npm run lint
+      prologue:
+        commands:
+          - checkout
+          - sem-version node 10.13.0
+          - cache restore
+  - name: Deploy
+    skip:
+      when: "branch != 'master'"
+    task:
+      secrets:
+        - name: npm
+      jobs:
+        - name: Publish
+          commands:
+          - npm publish
+      prologue:
+        commands:
+          - checkout
+          - sem-version node 10.13.0
+          - cache restore

@@ -8,7 +8,7 @@ try {
 	coreDebug = debug("dynomight:core");
 	verboseDebug = debug("dynomight:verbose");
 	hookDebug = debug("dynomight:hook");
-} catch (error) {}
+} catch (error) {} // eslint-disable-line no-unused-vars
 
 module.exports = class DynoMight {
 	constructor(db, tableName, definition) {

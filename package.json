@@ -45,7 +45,7 @@
     ]
   },
   "devDependencies": {
-    "aws-sdk": "^2.491.0",
+    "aws-sdk": "^2.623.0",
     "aws-sdk-mock": "^4.5.0",
     "chai": "^4.2.0",
     "codacy-coverage": "^3.4.0",

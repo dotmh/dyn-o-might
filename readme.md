@@ -9,6 +9,7 @@ Dyn-O-Might
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/0d61d8d487524ed98cb6bf18d3db8b57)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=dotmh/dynomight&utm_campaign=Badge_Coverage)
 [![Build Status](https://semaphoreci.com/api/v1/projects/1b6ec428-e2c7-45ef-b144-acf910092b2d/2598338/badge.svg)](https://semaphoreci.com/dotmh/dyn-o-might)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
+[![Buy us a tree](https://img.shields.io/badge/Treeware-%F0%9F%8C%B3-lightgreen?style=flat-square)](https://plant.treeware.earth/dotmh/lambda-controller)
 
 A small (but one day hopefully mighty) wrapper round [AWS DynomoDB](https://aws.amazon.com/dynamodb/) to do commonly required things. 
 
@@ -73,6 +74,50 @@ You then of course use an instance of your class to interact with Dynomdb.
 ```javascript
 const myModel = new MyModel();
 const result = await myModel.put(id, document);
+```
+
+Definition
+----------
+In the examples above we pass an instance of the AWS SDK DynamoDB Document Client, the name we want for our table and this thing called a definition. A definition is like a schema in traditional database schema. Dynomight uses this to work out how to handle operations to and from DynamoDB as well as for validation. 
+
+A defintion is a standard object that defines which fields to use, whether they are the key field and optionally some validation rules such as type or requirement. 
+
+The object key is the field name i.e. `id` and the value is the metadata about that field. this can include 
+
+- `isKey` Whether this is the document key field. _Remember the warning this whole library is not complete, one of the most obvious omitions is that it doesn't support sort keys yet as I just havent needed them_
+- `required` Whether or not the field is required its is a boolean `true` it is required, `false` it is not
+- `type` The JS type of the field if you were to run [typeof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof) __NOTE__ this does know the difference between an object and array. 
+
+When you only want to define a field , you can use a short hand for required and just set the value to a boolean i.e. if there is a field called `to` and it is required `to: true` would be all that is needed. 
+
+Example 
+
+```javascript
+{
+  from: {
+    required: true,
+    isKey: true
+  },
+  to: true,
+  fromCode: true,
+  toCode: true
+}
+```
+
+Any other field meta data can be stored here that you want, if you add extra functionality then you can store meta data for the field that it requires. For example I have a plugin that uses more advanced validation using [validate.js](https://validatejs.org) a definition for that was 
+
+```javascript
+const defintion = {
+  // ... more fields
+  website: {
+    validation: {
+      presence: false,
+      type: "string",
+      url: true
+    }
+  },
+  // ... more fields
+}
 ```
 
 Hooks
@@ -140,3 +185,18 @@ _Please note that I have changed this code slightly for the sake of this example
 | `beforeScanHook`   | Operation Hook - Before Scan                                | `parameters`  Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                |
 | `afterScanHook`    | Operation Hook - After Scan                                 | `response`  Object - The processed response object returned by DynamoDB                                                                                                                                                                                                                                    |
 | `validationHook`   | This hook is fired when anything calls the `isValid` method | `event` See `isValid` method documentation  - `preventDefault`: Boolean (false) prevent the use of the default validation - `data`: Object The data that is been saved - `definition` : Object The definition object  - `tableName`: String The table name - `result` : Array The result of the validation |
+
+Documentation
+-------------
+
+Comming Soon - Remember its not finished 😜
+
+Licence
+-------
+
+This package is [Treeware](https://treeware.earth). If you use it in production, then we ask that you [**buy the world a tree**](https://plant.treeware.earth/dotmh/lambda-controller) to thank us for our work. By contributing to the Treeware forest you’ll be creating employment for local families and restoring wildlife habitats.
+
+Credits
+-------
+
+Logo design by [@dotmh](https://www.dotmh.io)

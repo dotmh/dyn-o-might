@@ -1,6 +1,6 @@
-![Lambda Controller](logo.svg)
+![DynOMight](logo.svg)
 
-Contributing to Lambda Controller
+Contributing to DynOMight
 =================================
 
 **Before you continue** Please make sure you have read our [Code Of Conduct](code_of_conduct.md)
@@ -12,8 +12,8 @@ Contributing to Lambda Controller
 Issues
 ------
 
--   State version of node/Lambda Controller/enviromemnt/os.
--   enviroment means are running it locally or in AWS
+-   State version of node/DynOMight/enviromemnt/os.
+  -   enviroment means are running it locally or in AWS
 -   Include a minimal script which can reproduce the issue.
 
 Pull Requests

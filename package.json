@@ -6,7 +6,9 @@
   "scripts": {
     "test": "npx nyc mocha --recursive specs/*.spec.js --exit",
     "test:coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage",
-    "lint": "npx xo"
+    "lint": "npx xo",
+    "lint:md": "remark .",
+    "lint:md:fix": "remark . -o"
   },
   "repository": {
     "type": "git",
@@ -53,7 +55,10 @@
     "faker": "^4.1.0",
     "mocha": "^8.0.1",
     "nyc": "^15.1.0",
-    "xo": "^0.32.0"
+    "xo": "^0.32.0",
+    "remark-cli": "^8.0.0",
+    "remark-lint": "^7.0.0",
+    "remark-preset-lint-recommended": "^4.0.0"
   },
   "nyc": {
     "extension": [
@@ -69,5 +74,13 @@
       "lcov"
     ],
     "all": true
+  },
+  "remarkConfig": {
+    "settings": {
+      "setext": true
+    },
+    "plugins": [
+      "remark-preset-lint-recommended"
+    ]
   }
 }

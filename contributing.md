@@ -1,7 +1,7 @@
 ![DynOMight](logo.svg)
 
 Contributing to DynOMight
-=================================
+=========================
 
 **Before you continue** Please make sure you have read our [Code Of Conduct](code_of_conduct.md)
 
@@ -13,7 +13,7 @@ Issues
 ------
 
 -   State version of node/DynOMight/enviromemnt/os.
-  -   enviroment means are running it locally or in AWS
+-   enviroment means are running it locally or in AWS
 -   Include a minimal script which can reproduce the issue.
 
 Pull Requests

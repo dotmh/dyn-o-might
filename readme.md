@@ -1,11 +1,11 @@
 ![DynO-Might](logo.svg)
 
-
 Dyn-O-Might
 ===========
+
 [![DotMH Future Gadget Lab](https://img.shields.io/badge/DotMH-.dev-red.svg?style=flat-square)](https://www.dotmh.io)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d61d8d487524ed98cb6bf18d3db8b57)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dotmh/dynomight&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d61d8d487524ed98cb6bf18d3db8b57)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=dotmh/dynomight&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/0d61d8d487524ed98cb6bf18d3db8b57)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=dotmh/dynomight&utm_campaign=Badge_Coverage)
 [![Build Status](https://semaphoreci.com/api/v1/projects/1b6ec428-e2c7-45ef-b144-acf910092b2d/2598338/badge.svg)](https://semaphoreci.com/dotmh/dyn-o-might)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
@@ -13,7 +13,7 @@ Dyn-O-Might
 
 A small (but one day hopefully mighty) wrapper round [AWS DynomoDB](https://aws.amazon.com/dynamodb/) to do commonly required things. 
 
-__WARNING this is very much a work in progress! Not all off DynomoDB is supported yet. I tend to add new features and support more of dynomoDB as I need it. Use at own risk__ 
+**WARNING this is very much a work in progress! Not all off DynomoDB is supported yet. I tend to add new features and support more of dynomoDB as I need it. Use at own risk** 
 
 Installation
 ------------
@@ -42,9 +42,10 @@ const dynomight = new Dynomight((new AWS.DynamoDB.DocumentClient()), 'someTable'
   }
 });
 ```
+
 then call methods on that instance 
 
-```javascript 
+```javascript
 const result = await dynomight.put(id, document);
 ```
 
@@ -78,15 +79,16 @@ const result = await myModel.put(id, document);
 
 Definition
 ----------
+
 In the examples above we pass an instance of the AWS SDK DynamoDB Document Client, the name we want for our table and this thing called a definition. A definition is like a schema in traditional database schema. Dynomight uses this to work out how to handle operations to and from DynamoDB as well as for validation. 
 
 A defintion is a standard object that defines which fields to use, whether they are the key field and optionally some validation rules such as type or requirement. 
 
 The object key is the field name i.e. `id` and the value is the metadata about that field. this can include 
 
-- `isKey` Whether this is the document key field. _Remember the warning this whole library is not complete, one of the most obvious omitions is that it doesn't support sort keys yet as I just havent needed them_
-- `required` Whether or not the field is required its is a boolean `true` it is required, `false` it is not
-- `type` The JS type of the field if you were to run [typeof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof) __NOTE__ this does know the difference between an object and array. 
+-   `isKey` Whether this is the document key field. _Remember the warning this whole library is not complete, one of the most obvious omitions is that it doesn't support sort keys yet as I just havent needed them_
+-   `required` Whether or not the field is required its is a boolean `true` it is required, `false` it is not
+-   `type` The JS type of the field if you were to run [typeof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof) **NOTE** this does know the difference between an object and array. 
 
 When you only want to define a field , you can use a short hand for required and just set the value to a boolean i.e. if there is a field called `to` and it is required `to: true` would be all that is needed. 
 
@@ -135,7 +137,7 @@ Hook names are always [JS Symbols](https://developer.mozilla.org/en-US/docs/Web/
 
 Hooks can be used to achieve all kinds of things, I added them for this very reason as I needed this functionality. One use I needed was to automatically put a "date updated" and "date created" stamp on every record. which looks like this 
 
-```javascript 
+```javascript
 // class set up code 
 constructor() {
   // Constructor set up code
@@ -174,8 +176,9 @@ timestamps() {
 _Please note that I have changed this code slightly for the sake of this example, as using it as is would cause you to store a date in a not very useful format i.e. `Tue, 23 Jun 2020 14:42:15 GMT` which isn't ideal_
 
 ### Hook List
+
 | Hook               | Description                                                 | Parameters                                                                                                                                                                                                                                                                                                 |
-|--------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `beforePutHook`    | Operation Hook - Before Put                                 | `parameters` Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                 |
 | `afterPutHook`     | Operation Hook - After Put                                  | `response` Object - The processed response object returned by DynamoDB                                                                                                                                                                                                                                     |
 | `beforeGetHook`    | Operation Hook - Before Get                                 | `parameters`  Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                |

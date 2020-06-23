@@ -74,3 +74,69 @@ You then of course use an instance of your class to interact with Dynomdb.
 const myModel = new MyModel();
 const result = await myModel.put(id, document);
 ```
+
+Hooks
+-----
+
+Event ... or whatever you want to call them, is away of extending DynOMight to add new functionality. All operations have a pre hook and most (execpt for validation) has an after hook. Hooks get triggered automatically as the class does its works. 
+
+To bind a hook you use the `on` method. The method takes some hook name, and a callback function to run when the hook is triggered. 
+
+```javascript
+myModel.on(myModel.beforePuthHook, (data) => console.log(data));
+```
+
+Hook names are always [JS Symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) so you need to use the class properties for hooks. 
+
+Hooks can be used to achieve all kinds of things, I added them for this very reason as I needed this functionality. One use I needed was to automatically put a "date updated" and "date created" stamp on every record. which looks like this 
+
+```javascript 
+// class set up code 
+constructor() {
+  // Constructor set up code
+  timestamps();
+}
+
+timestamps() {
+  // Create some constants
+  const DATE_CREATED = 'date-created';
+  const DATE_UPDATED = 'date-updated';
+  
+  // Update the definition to add our new fields.
+  this.definition[DATE_CREATED] = true;
+	this.definition[DATE_UPDATED] = true;
+
+  //bind to the `beforePut` hook so every time we update a record this is triggered
+	this.on(this.beforePutHook, (params) => {
+    // Get the time now
+    const now = new Date().toUTCString();
+    
+    // If we don't have a date created then we create one and set the date created
+		if (!(DATE_CREATED in params)) {
+			params[DATE_CREATED] = now;
+		}
+
+    // Set the date updated to now
+    params[DATE_UPDATED] = now;
+    
+    // Return the result This is a MUST!
+		return params;
+	});
+}
+
+```
+
+_Please note that I have changed this code slightly for the sake of this example, as using it as is would cause you to store a date in a not very useful format i.e. `Tue, 23 Jun 2020 14:42:15 GMT` which isn't ideal_
+
+### Hook List
+| Hook               | Description                                                 | Parameters                                                                                                                                                                                                                                                                                                 |
+|--------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `beforePutHook`    | Operation Hook - Before Put                                 | `parameters` Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                 |
+| `afterPutHook`     | Operation Hook - After Put                                  | `response` Object - The processed response object returned by DynamoDB                                                                                                                                                                                                                                     |
+| `beforeGetHook`    | Operation Hook - Before Get                                 | `parameters`  Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                |
+| `afterGetHook`     | Operation Hook - After Get                                  | `response`  Object - The processed response object returned by DynamoDB                                                                                                                                                                                                                                    |
+| `beforeDeleteHook` | Operation Hook - Before Delete                              | `parameters`  Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                |
+| `afterDeleteHook`  | Operation Hook - After Delete                               | `response`  Object - The processed response object returned by DynamoDB                                                                                                                                                                                                                                    |
+| `beforeScanHook`   | Operation Hook - Before Scan                                | `parameters`  Object - The raw parameters object before it sent to DynamoDB                                                                                                                                                                                                                                |
+| `afterScanHook`    | Operation Hook - After Scan                                 | `response`  Object - The processed response object returned by DynamoDB                                                                                                                                                                                                                                    |
+| `validationHook`   | This hook is fired when anything calls the `isValid` method | `event` See `isValid` method documentation  - `preventDefault`: Boolean (false) prevent the use of the default validation - `data`: Object The data that is been saved - `definition` : Object The definition object  - `tableName`: String The table name - `result` : Array The result of the validation |

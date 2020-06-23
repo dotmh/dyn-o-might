@@ -295,7 +295,7 @@ module.exports.put = {
 		withDefault: {
 			key: faker.random.word(),
 			payload: {
-				to: '',
+				to: "",
 				toCode: faker.address.countryCode(),
 				fromCode: faker.address.countryCode()
 			}

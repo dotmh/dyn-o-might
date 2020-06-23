@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npx nyc mocha --recursive specs/*.spec.js --exit",
-    "test:coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage"
+    "test:coverage": "npx nyc mocha --recursive specs/*.spec.js && cat ./coverage/lcov.info | codacy-coverage",
+    "lint": "npx xo"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,10 @@
     "debug": "^4.1.1"
   },
   "xo": {
+    "ignores": [
+      "docs",
+      "specs"
+    ],
     "rules": {
       "quotes": [
         "error",
@@ -46,9 +51,9 @@
     "codacy-coverage": "^3.4.0",
     "debug": "^4.1.1",
     "faker": "^4.1.0",
-    "mocha": "^6.1.4",
-    "nyc": "^14.1.1",
-    "xo": "^0.24.0"
+    "mocha": "^7.0.1",
+    "nyc": "^15.0.0",
+    "xo": "^0.26.0"
   },
   "nyc": {
     "extension": [

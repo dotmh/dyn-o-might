@@ -8,7 +8,7 @@ try {
 	coreDebug = debug("dynomight:core");
 	verboseDebug = debug("dynomight:verbose");
 	hookDebug = debug("dynomight:hook");
-} catch (error) {} // eslint-disable-line no-unused-vars
+} catch {}
 
 module.exports = class DynoMight {
 	constructor(db, tableName, definition) {
@@ -45,16 +45,16 @@ module.exports = class DynoMight {
 		];
 	}
 
-	scan(_params = {}) {
-		coreDebug("Running Sync with %O", _params);
+	scan(_parameters = {}) {
+		coreDebug("Running Sync with %O", _parameters);
 		return new Promise((resolve, reject) => {
-			let params = {
+			let parameters = {
 				TableName: this.tableName,
-				..._params
+				..._parameters
 			};
 
-			params = this._triggerHook(this.beforeScanHook, params);
-			this.db.scan(params, (err, result) => {
+			parameters = this._triggerHook(this.beforeScanHook, parameters);
+			this.db.scan(parameters, (err, result) => {
 				if (err) {
 					coreDebug("ERROR: %s", err.message);
 					reject(err);
@@ -74,14 +74,14 @@ module.exports = class DynoMight {
 	get(key) {
 		coreDebug("Running Get with %s", key);
 		return new Promise((resolve, reject) => {
-			let params = {
+			let parameters = {
 				TableName: this.tableName,
 				Key: {
 					[this._keyField()]: key
 				}
 			};
-			params = this._triggerHook(this.beforeGetHook, params);
-			this.db.get(params, (err, result) => {
+			parameters = this._triggerHook(this.beforeGetHook, parameters);
+			this.db.get(parameters, (err, result) => {
 				if (err) {
 					coreDebug("ERROR: %s", err.message);
 					reject(err);

@@ -1,4 +1,4 @@
-![DynO-Might](logo.svg)
+![DynO-Might](https://github.com/dotmh/dyn-o-might/raw/master/logo.svg?sanitize=true)
 
 Dyn-O-Might
 ===========
@@ -7,13 +7,15 @@ Dyn-O-Might
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d61d8d487524ed98cb6bf18d3db8b57)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=dotmh/dynomight&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/0d61d8d487524ed98cb6bf18d3db8b57)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=dotmh/dynomight&utm_campaign=Badge_Coverage)
-[![Build Status](https://semaphoreci.com/api/v1/projects/1b6ec428-e2c7-45ef-b144-acf910092b2d/2598338/badge.svg)](https://semaphoreci.com/dotmh/dyn-o-might)
+![Build](https://dotmh.semaphoreci.com/badges/dyn-o-might.svg)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
-[![Buy us a tree](https://img.shields.io/badge/Treeware-%F0%9F%8C%B3-lightgreen?style=flat-square)](https://plant.treeware.earth/dotmh/lambda-controller)
+[![Buy us a tree](https://img.shields.io/badge/Treeware-%F0%9F%8C%B3-lightgreen?style=flat-square)](https://plant.treeware.earth/dotmh/dynomight)
+![NPM](https://img.shields.io/npm/l/@dotmh/dynomight?style=flat-square)
+![npm bundle size](https://img.shields.io/bundlephobia/min/@dotmh/dynomight?style=flat-square)
 
 A small (but one day hopefully mighty) wrapper round [AWS DynomoDB](https://aws.amazon.com/dynamodb/) to do commonly required things. 
 
-**WARNING this is very much a work in progress! Not all off DynomoDB is supported yet. I tend to add new features and support more of dynomoDB as I need it. Use at own risk** 
+**WARNING this is very much a work in progress! Not all of DynomoDB is supported yet. I tend to add new features and support more of dynomoDB as I need it. Use at own risk** 
 
 Installation
 ------------
@@ -192,7 +194,7 @@ _Please note that I have changed this code slightly for the sake of this example
 Documentation
 -------------
 
-Comming Soon - Remember its not finished 😜
+API Documentation Comming Soon - Remember its not finished 😜
 
 Licence
 -------
